@@ -1,21 +1,12 @@
 # coding = utf-8
-import re
-import ssl
-import urllib
-from urllib import request
-from urllib.parse import urlencode
-from urllib.request import urlopen, urlretrieve
-from bs4 import BeautifulSoup
-import requests
-import psycopg2
-import datetime
-import time
-from fake_useragent import UserAgent
-import chardet
-from lxml import etree
-import hashlib
-import csv
 import os
+import re
+from urllib.parse import urlencode
+from urllib.request import urlretrieve
+import chardet
+import requests
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 ua = UserAgent( )
 
