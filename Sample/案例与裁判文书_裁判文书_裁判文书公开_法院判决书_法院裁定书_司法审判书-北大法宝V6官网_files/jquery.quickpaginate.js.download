@@ -1,0 +1,278 @@
+﻿/* ---------------------------------------------------------------------------
+* 
+* 调用示例:
+*
+* jQuery('.news_item').quickpaginate(); // 按class名调用
+* 
+* jQuery('div#quick_slideshow img').quickpaginate(); // 某个div里的img元素
+*
+* jQuery('.news_item').quickpaginate( { perpage: 5, showcounter: false } ); //每页5条数据
+*
+* jQuery('img, #info').quickpaginate({ pager : $("#pager_here") });//多种元素同时分页
+*
+---------------------------------------------------------------------------*/
+
+jQuery.fn.quickpaginate = function (settings) {
+
+    settings = jQuery.extend({
+
+        perpage: 13,//每页大小
+
+        pager: null,//分页导航存放容器
+
+        showcounter: true,//
+
+        prev: "qp_prev",
+
+        next: "qp_next",
+
+        pagenumber: "qp_pagenumber",
+
+        totalnumber: "qp_totalnumber",
+
+        counter: "qp_counter",
+
+        allitems: "qp_all",
+
+        showall: true
+
+    }, settings);
+
+    var cm;
+
+    var total;
+
+    var last = false;
+
+    var first = true;
+
+    var items = jQuery(this);
+
+    var nextbut;
+
+    var prevbut;
+
+    var allbut;
+
+    var showallitem = function ()//显示全部 lk Add
+    {
+        items.show();
+    };
+
+    var init = function ()//初始化
+    {
+        total = items.size();
+
+        if (items.size() > settings.perpage) {
+
+            items.filter(":lt(" + (settings.perpage) + ")").show();
+
+            items.filter(":gt(" + (settings.perpage - 1) + ")").hide();
+
+            cm = settings.perpage;
+
+            setNav();
+        }
+        else {
+            items.show();
+        }
+    };
+
+    var goSomeone = function (sortNum)//跳转到某一页 add by zhangchi
+    {
+
+        if (allbut.text() == "收起") {
+            allbut.text("全部");
+        }
+        cm = Math.floor((sortNum - 1) / settings.perpage) * settings.perpage;
+        var nm = cm + settings.perpage;
+        items.hide();
+
+        items.slice(cm, nm).show();
+        cm = nm;
+
+        if (cm >= total) {
+            last = true;
+            nextbut.addClass("qp_disabled");
+
+        } else {
+            last = false;
+        }
+        if (cm == settings.perpage) {
+            first = true;
+            prevbut.addClass("qp_disabled");
+        } else {
+            prevbut.removeClass("qp_disabled");
+            first = false;
+        }
+
+        if (settings.showcounter) {
+            settings.pager.find("." + settings.pagenumber).text(cm / settings.perpage);
+        }
+
+
+
+    }
+
+    var goNext = function ()//下一页
+    {
+
+        var nm = cm + settings.perpage;
+        items.hide();
+
+        items.slice(cm, nm).show();
+        cm = nm;
+
+        if (cm >= total) {
+            last = true;
+            nextbut.addClass("qp_disabled");
+            nextbut.unbind(); //翻到最后一页让下一页按钮不可点击 
+        } 
+        if (settings.showcounter) {
+            settings.pager.find("." + settings.pagenumber).text(cm / settings.perpage);
+        }
+        prevbut.removeClass("qp_disabled");
+        first = false;
+
+
+
+    };
+
+    var goPrev = function ()//上一页
+    {
+        if (!first) {
+
+            if (allbut.text() == "收起") {
+                allbut.text("全部");
+            }
+
+            var nm = cm - settings.perpage;
+            items.hide();
+
+            items.slice((nm - settings.perpage), nm).show();
+            cm = nm;
+
+            if (cm == settings.perpage) {
+                first = true;
+                prevbut.addClass("qp_disabled");
+            }
+
+            if (settings.showcounter)
+                settings.pager.find("." + settings.pagenumber).text(cm / settings.perpage);
+
+            nextbut.removeClass("qp_disabled");           
+            last = false;
+        }
+        nextbut.unbind();
+        nextbut.bind("click", function() {
+            goNext();
+        });
+    };
+
+    var goFirst = function ()//首页
+    {
+        cm = settings.perpage;
+        items.hide();
+        items.slice(0, settings.perpage).show();
+
+        first = true;
+        prevbut.addClass("qp_disabled");
+
+        if (settings.showcounter)
+            settings.pager.find("." + settings.pagenumber).text(1);
+
+        nextbut.removeClass("qp_disabled");
+        last = false;
+    };
+
+    //设置分页导航
+    var setNav = function () {
+
+        //将分页放入的容器
+        if (settings.pager === null) {
+            settings.pager = jQuery('<div class="qc_pager"></div>');
+            items.eq(items.size() - 1).after(settings.pager);
+        }
+        //显示
+        settings.pager.show();
+
+        var pagerNav =
+            $('<a class="' + settings.prev + '" href="javascript:void(0)"><i class="c-icon"></i>上一页</a>' +
+            '<a class="' + settings.next + '" href="javascript:void(0)"> 下一页<i class="c-icon"></i></a>');
+
+        jQuery(settings.pager).append(pagerNav);
+
+        //是否显示数字
+        if (settings.showcounter) {
+            var counter =
+                '<span class="' + settings.counter + '">' +
+                '<span class="' + settings.pagenumber + '"></span> / ' +
+                '<span class="' + settings.totalnumber + '"></span></span>';
+
+            settings.pager.find("." + settings.prev).before(counter);
+
+            settings.pager.find("." + settings.pagenumber).text(1);
+            settings.pager.find("." + settings.totalnumber).text(Math.ceil(total / settings.perpage));
+        }
+        //是否显示全部
+        if (settings.showall) {
+            var allshow = '<a href="javascript:void(0);" class="' + settings.showall + '">全部</a>';
+            settings.pager.find("." + settings.next).after(allshow);
+        }
+
+        nextbut = settings.pager.find("." + settings.next);
+
+        prevbut = settings.pager.find("." + settings.prev);
+
+        allbut = settings.pager.find("." + settings.showall);
+
+        prevbut.addClass("qp_disabled");
+
+        nextbut.click(function () {
+            goNext();
+            return false;
+        });
+
+        prevbut.click(function () {
+            goPrev();
+            return false;
+        });
+
+        allbut.click(function () {
+            if ($(this).text() == "全部") {
+                showallitem();
+                $(this).text("收起");
+                $(this).parent().children("span").hide();
+                $(this).parent().children("a").hide();
+                $(this).show();
+            }
+            else {
+                goFirst();
+                $(this).text("全部");
+                $(this).parent().children().show();
+                nextbut.unbind();
+                nextbut.click(function () {
+                    goNext();
+                    return false;
+                });
+                prevbut.unbind();
+                prevbut.click(function () {
+                    goPrev();
+                    return false;
+                });
+            }
+            return false;
+        });
+
+        if (settings.pager.attr("sortnum") != undefined) {
+            var sortNum = parseInt(settings.pager.attr("sortnum"));
+            if (sortNum > settings.perpage) {
+                goSomeone(sortNum);
+            }
+        }
+
+    };
+
+    init(); // 初始化
+
+};

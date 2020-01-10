@@ -1,0 +1,1009 @@
+﻿
+function IsUndefined(p) {
+
+    if (p != "undefined") {
+        return true;
+    } else {
+        return false;
+    }
+
+
+}
+
+//获取关闭广告的cookie
+function getCookie(name) {
+    var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+
+    if (arr = document.cookie.match(reg))
+
+        return unescape(arr[0]);
+    else
+        return null;
+}
+
+
+function RequestSuccess(adv) {
+
+    var advSb = "<div class='close'> <a href='javascript:;' class='c-icon c-close'>关闭</a></div><div id='slides' class='slider'>";
+    var topAdv = $("#topAd");
+
+
+    if (adv != null) {
+        var data = adv.Data;
+        var dataObj = eval("(" + data + ")");
+        var len = dataObj.length;
+        if (len > 0) {
+
+            for (var i = 0; i < len; i++) {
+                var advSet = dataObj[i];
+                var picSrc = advSet.PictureSrc;
+                var picHref = advSet.PictureHref;
+                var picAlt = advSet.PictureAlt;
+                advSb += "<div style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;'></div>";
+            }
+
+        }
+
+        advSb += "</div>";
+        topAdv.html(advSb);
+        if (len > 1) {
+            $('#slides').slidesjs({
+                play: {
+                    //active: true,
+                    auto: true,
+                    interval: 4000,
+                    swap: false
+                }
+            });
+        }
+
+
+        $('.slider-wrap .close a').closeAncestor();
+    }
+}
+
+
+var homeAdvId = "D1F34941-096B-4CFD-AC57-09B156F391E8";//首页广告位Id
+var lawAdvId = "41010880-B5A8-4667-B3B5-07EF3B76C7C9";//法规首页信息网二维码广告位Id
+var lawAdv1Id = "6BC584AD-D439-4C6E-9B40-C4B6DB1FE1CD";//法规首页法宝二维码广告位Id
+var caseAdvId = "268057F9-029E-4B20-9284-2309B49AA8B5";//案例首页广告位Id
+var qikanAdvIdRight = "CF537781-8A41-499A-982F-745FB28D0309";//期刊首页右侧中部广告位Id
+var qikanAdvIdTop = "F2FF3827-2702-473F-9E57-DE3038535433"; //期刊首页顶部广告位Id
+var firmAdvIdRight = "E3D29808-D4B1-43E5-8185-260A0A953F19";//律所实务首页右侧中部广告位Id
+var firmAdvIdTop = "6EA21BD7-B762-4C48-88D0-6E74FFBF4DE4";//律所实务首页顶部广告位Id
+var refAdvIdFirst = "EB403B25-88FE-481A-B6DA-4AF2854C36F1";//专题参考左侧第一个广告位Id
+var refAdvIdSecond = "3D45205C-2132-4711-9406-DABB30504279";//专题参考左侧第二个广告位Id
+var engAdvIdFirst = "BDB1FB91-5441-4434-B8C1-A14EDDE60C87";//英文首页左侧第一个广告位Id
+var engAdvIdSecond = "879A0E8A-942E-4DB2-86A2-84743BFCD890";//英文首页左侧第二个广告位Id
+var journalAdvIdFirst = "EAADB114-B982-418E-93AD-DAE3640F90A3";//英文期刊首页左侧第一个广告位
+var journalAdvIdSecond = "21921873-0EBB-4CC1-897A-EFDAAFD0E35D";//英文期刊首页左侧第二个广告位
+var columTopAdvId = "4BB270A6-ECC3-4BBC-ABAF-1DE31AEFB016"; //栏目顶部广告位
+var lawTopAdvId = "53828F89-FD76-401F-8A26-39C1C2B043CF";//法规顶部广告位
+var caseTopAdvId = "ADE136AA-6DC2-468E-93BE-616024F419EF";//案例顶部广告位
+var videoTopAdvId = "bfe827e6-a0ae-40b0-b435-5d78a6e15169";//法宝视频首页顶部广告位
+var advertisement = "https://manage.pkulaw.cn/AdPosition/GetAdByAdPositionId?callback=?&Id=";
+//var advertisement = "http://192.168.0.153:6013/AdPosition/GetAdByAdPositionId?callback=?&Id=";
+var picPath = "https://manage.pkulaw.cn";
+
+
+
+
+
+var advUrl = "";
+var AdPosition = {
+
+
+    LawInit: function () {
+        var advSb = "";
+        var lawAdv = $("#lawAdv");
+        var lawAdv1 = $("#lawAdv1");
+        if (IsUndefined(lawAdv)) {
+
+            advUrl = advertisement + lawAdvId;
+       
+        $.ajax({
+            url: advUrl,
+            type: "Get",
+            dataType: 'jsonp',
+            success: function (adv) {
+                if (adv != null) {
+                  
+                    var len = adv.length;
+                    if (len > 0) {
+
+                        var advSet = adv[0];
+                        var picSrc = advSet.PictureSrc;
+                        var picHref = advSet.PictureHref;
+                        var picAlt = advSet.PictureAlt;
+           
+                        if (picHref == "" || picHref == null) {
+                            advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                        } else {
+                            advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                        }
+                    }
+
+                    if (advSb != "") {
+
+                        lawAdv.html(advSb);
+                    }
+                }
+            }
+        });
+        }
+
+        if (IsUndefined(lawAdv1)) {
+            var advSbTo = "";
+            advUrl = advertisement + lawAdv1Id;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv1) {
+                    if (adv1 != null) {
+
+                        var len = adv1.length;
+                        if (len > 0) {
+
+                            var advSet1 = adv1[0];
+                            var picSrc = advSet1.PictureSrc;
+                            var picHref = advSet1.PictureHref;
+                            var picAlt = advSet1.PictureAlt;
+                            if (picHref == "" || picHref == null) {
+                                advSbTo += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSbTo += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSbTo != "") {
+                            lawAdv1.html(advSbTo);
+                        }
+
+                    }
+
+
+                }
+               
+            });
+        }
+
+
+    },
+
+    CaseInit: function () {
+        var advSb = "";
+        var caseAdv = $("#caseAdv");
+        if (IsUndefined(caseAdv)) {
+            advUrl = advertisement + caseAdvId;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                       
+                        var len = adv.length;
+                        if (len > 0) {
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            caseAdv.html(advSb);
+                        }
+
+                    }
+                }
+            });
+        }
+
+
+    },
+
+    qikanInit: function () {
+
+        var qikanRight = $("#qikanRight");
+        var qikanTop = $("#screen-slides");
+        if (IsUndefined(qikanRight)) {
+            var advSb = "";
+            advUrl = advertisement + qikanAdvIdRight;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                     
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            qikanRight.html(advSb);
+                        }
+                    }
+                }
+            });
+
+        }
+
+        if (IsUndefined(qikanTop)) {
+            var advSbTo = "";
+            advUrl = advertisement + qikanAdvIdTop;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+
+                    if (adv != null) {
+                       
+                        var len = adv.length;
+
+                        if (len > 0) {
+
+                            for (var i = 0; i < len; i++) {
+
+                                var advSet = adv[i];
+                                var picSrc = advSet.PictureSrc;
+                                var picHref = advSet.PictureHref;
+                                var picAlt = advSet.PictureAlt;
+                                var errorPic = "/Content/ad-images/pic-1.jpg";
+                                var cha = '"';
+
+                                if (picHref == "" || picHref == null) {
+                                    advSbTo += "<div><a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                } else {
+                                    advSbTo += "<div><a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                }
+                            }
+
+                            if (advSbTo != "") {
+
+                                qikanTop.html(advSbTo);
+                            }
+
+                        }
+                    }
+
+
+                    //广告轮播
+                    $('#screen-slides').slidesjs({
+                        play: {
+                            //active: true,
+                            auto: false,
+                            interval: 4000,
+                            swap: false
+                        }
+                    });
+
+                }
+
+
+            });
+        }
+
+
+    },
+
+    lawfirmInit: function () {
+
+        var firmRight = $("#firmRight");
+        var firmTop = $("#screen-slides");
+        if (IsUndefined(firmRight)) {
+            var advSb = "";
+            advUrl = advertisement + firmAdvIdRight;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                      
+                        var len = adv.length;
+
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            firmRight.html(advSb);
+                        }
+
+                    }
+                }
+            });
+
+
+        }
+
+
+        if (IsUndefined(firmTop)) {
+
+            var advSbTo = "";
+            advUrl = advertisement + firmAdvIdTop;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+
+                    if (adv != null) {
+                       
+                        var len = adv.length;
+
+                        if (len > 0) {
+
+                            for (var i = 0; i < len; i++) {
+
+                                var advSet = adv[i];
+                                var picSrc = advSet.PictureSrc;
+                                var picHref = advSet.PictureHref;
+                                var picAlt = advSet.PictureAlt;
+                                var errorPic = "/Content/ad-images/pic-1.jpg";
+                                var cha = '"';
+
+                                if (picHref == "" || picHref == null) {
+                                    advSbTo += "<div><a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                } else {
+                                    advSbTo += "<div><a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                }
+                            }
+
+                            if (advSbTo != "") {
+
+                                firmTop.html(advSbTo);
+                            }
+
+                        }
+                    }
+
+
+                    //广告轮播
+                    $('#screen-slides').slidesjs({
+                        play: {
+                            //active: true,
+                            auto: false,
+                            interval: 4000,
+                            swap: false
+                        }
+                    });
+
+                }
+
+
+            });
+        }
+
+
+    },
+
+    referenceInit: function () {
+
+
+        var refFirst = $("#refFirst");
+        var refSecond = $("#refSecond");
+
+        if (IsUndefined(refFirst)) {
+            var advSb = "";
+            advUrl = advertisement + refAdvIdFirst;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {                        
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+                           
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            refFirst.html(advSb);
+                        }
+
+
+                    }
+                }
+            });
+
+        }
+
+        if (IsUndefined(refSecond)) {
+            var advSbTo = "";
+            advUrl = advertisement + refAdvIdSecond;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {                       
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSbTo += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSbTo += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSbTo != "") {
+
+                            refSecond.html(advSbTo);
+                        }
+
+
+                    }
+                }
+            });
+
+        }
+
+
+    },
+
+    englishIndexInit: function () {
+
+        var engFirst = $("#engFirst");
+        var engSecond = $("#engSecond");
+
+        if (IsUndefined(engFirst)) {
+
+            var advSb = "";
+            advUrl = advertisement + engAdvIdFirst;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {                       
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            engFirst.html(advSb);
+                        }
+
+
+                    }
+                }
+            });
+
+        }
+
+        if (IsUndefined(engSecond)) {
+
+            var advSbTo = "";
+            advUrl = advertisement + engAdvIdSecond;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                                             
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+
+                            if (picHref == "" || picHref == null) {
+                                advSbTo += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSbTo += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSbTo != "") {
+
+                            engSecond.html(advSbTo);
+                        }
+
+
+                    }
+                }
+            });
+
+        }
+
+
+    },
+
+    journalIndexInit: function () {
+
+        var journalFirst = $("#journalFirst");
+        var journalSecond = $("#journalSecond");
+
+        if (IsUndefined(journalFirst)) {
+
+            var advSb = "";
+            advUrl = advertisement + journalAdvIdFirst;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                       
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+
+                        }
+
+                        if (advSb != "") {
+
+                            journalFirst.html(advSb);
+                        }
+
+
+                    }
+                }
+            });
+        }
+
+
+        if (IsUndefined(journalSecond)) {
+
+            var advSbTo = "";
+            advUrl = advertisement + journalAdvIdSecond;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+                         
+                            if (picHref == "" || picHref == null) {
+                                advSbTo += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSbTo += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSbTo != "") {
+
+                            journalSecond.html(advSbTo);
+                        }
+
+
+                    }
+                }
+            });
+        }
+    },
+
+    homeInit: function () {
+        var advSb = "";
+        var advHome = $("#slidesHome");
+        if (IsUndefined(advHome)) {
+
+            advUrl = advertisement + homeAdvId;
+
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {                        
+                        var len = adv.length;
+                        if (len > 0) {
+
+                            for (var i = 0; i < len; i++) {
+
+                                var advSet = adv[i];
+                                var picSrc = advSet.PictureSrc;
+                                var picHref = advSet.PictureHref;
+                                var picAlt = advSet.PictureAlt;
+                                if (picHref == "" || picHref == null) {
+                                    advSb += "<a href='javascript:void(0);' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:480px;'></a>";
+                                } else {
+                                    advSb += "<a href='" + picHref + "' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:480px;'></a>";
+                                }
+                            }
+
+                        }
+
+                        if (advSb != "") {
+
+                            advHome.html(advSb);
+                        }
+
+
+                        //广告轮播
+                        $('#slidesHome').slidesjs({
+                            play: {
+                                active: true,
+                                auto: true,
+                                interval: 5000,
+                                swap: true,
+                                effect: 'fade',
+                                pauseOnHover: true
+                            }
+
+
+                        });
+
+                    }
+                }
+            });
+
+
+        }
+
+    },
+
+    topInit: function () {
+
+
+        var topCookie = getCookie("xClose");
+
+        if (topCookie == null) {
+
+            var advSb = "<div class='close'> <a href='javascript:;' class='c-icon c-close'>关闭</a></div><div id='slides' class='slider'>";
+            var topAdv = $("#topAd");
+            if (IsUndefined(topAdv)) {
+
+                advUrl = advertisement + columTopAdvId;
+                $.ajax({
+                    url: advUrl,
+                    type: "Get",
+                    dataType: 'jsonp',
+                    success: function (adv) {
+
+                        if (adv != null) {
+                            var len = adv.length;                          
+                            if (len > 0) {
+
+                                for (var i = 0; i < len; i++) {
+                                    var advSet = adv[i];
+                                    var picSrc = advSet.PictureSrc;
+                                    var picHref = advSet.PictureHref;
+                                    var picAlt = advSet.PictureAlt;
+                                  
+                                    if (picHref == "" || picHref == null) {
+                                        advSb += "<a href='javascript:void(0);' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    } else {
+                                        advSb += "<a href='" + picHref + "' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    }
+                                }
+
+                            }
+
+                            advSb += "</div>";
+                            topAdv.html(advSb);
+                            if (len > 1) {
+                                $('#slides').slidesjs({
+                                    play: {
+                                        //active: true,
+                                        auto: true,
+                                        interval: 4000,
+                                        swap: false
+                                    }
+                                });
+                            }
+
+
+                            $('.slider-wrap .close a').closeAncestor();
+                        }
+                    }
+                   
+                });
+
+            }
+
+
+        } else {
+
+            $("#slides").parent().hide();
+        }
+
+    },
+
+    videoInit: function () {
+
+        var firmRight = $("#firmRight");
+        var firmTop = $("#screen-slides");
+        if (IsUndefined(firmRight)) {
+            var advSb = "";
+            advUrl = advertisement + videoTopAdvId;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+                    if (adv != null) {
+
+                        var len = adv.length;
+
+                        if (len > 0) {
+
+                            var advSet = adv[0];
+                            var picSrc = advSet.PictureSrc;
+                            var picHref = advSet.PictureHref;
+                            var picAlt = advSet.PictureAlt;
+
+                            if (picHref == "" || picHref == null) {
+                                advSb += "<a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            } else {
+                                advSb += "<a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "'></a>";
+                            }
+                        }
+
+                        if (advSb != "") {
+
+                            firmRight.html(advSb);
+                        }
+
+                    }
+                }
+            });
+
+
+        }
+
+
+        if (IsUndefined(firmTop)) {
+
+            var advSbTo = "";
+            advUrl = advertisement + videoTopAdvId;
+            $.ajax({
+                url: advUrl,
+                type: "Get",
+                dataType: 'jsonp',
+                success: function (adv) {
+
+                    if (adv != null) {
+
+                        var len = adv.length;
+
+                        if (len > 0) {
+
+                            for (var i = 0; i < len; i++) {
+
+                                var advSet = adv[i];
+                                var picSrc = advSet.PictureSrc;
+                                var picHref = advSet.PictureHref;
+                                var picAlt = advSet.PictureAlt;
+                                var errorPic = "/Content/ad-images/pic-1.jpg";
+                                var cha = '"'
+
+                                if (picHref == "" || picHref == null) {
+                                    advSbTo += "<div><a href='javascript:void(0);' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                } else {
+                                    advSbTo += "<div><a href='" + picHref + "' target='_blank'><img src='" + picPath + picSrc + "' alt='" + picAlt + "' onerror=" + cha + "this.src='" + errorPic + "'" + cha + "></a></div>";
+                                }
+                            }
+
+                            if (advSbTo != "") {
+
+                                firmTop.html(advSbTo);
+                            }
+
+                        }
+                    }
+
+
+                    //广告轮播
+                    $('#screen-slides').slidesjs({
+                        play: {
+                            //active: true,
+                            auto: false,
+                            interval: 4000,
+                            swap: false
+                        }
+                    });
+
+                }
+
+
+            });
+        }
+
+
+    },
+
+    lawTopInit: function() {
+        var topCookie = getCookie("xClose");
+        if (topCookie == null) {
+            var advSb = "<div class='close'> <a href='javascript:;' class='c-icon c-close'>关闭</a></div><div id='slides' class='slider'>";
+            var topAdv = $("#topAd");
+
+            if (IsUndefined(topAdv)) {
+                advUrl = advertisement + lawTopAdvId;
+                $.ajax({
+                    url: advUrl,
+                    type: "Get",
+                    dataType: 'jsonp',
+                    success: function (adv) {                       
+                        if (adv != null) {
+                            var len = adv.length;
+                            if (len > 0) {
+
+                                for (var i = 0; i < len; i++) {
+                                    var advSet = adv[i];
+                                    var picSrc = advSet.PictureSrc;
+                                    var picHref = advSet.PictureHref;
+                                    var picAlt = advSet.PictureAlt;
+
+                                    if (picHref == "" || picHref == null) {
+                                        advSb += "<a href='javascript:void(0);' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    } else {
+                                        advSb += "<a href='" + picHref + "' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    }
+                                }
+                            }
+                            advSb += "</div>";
+                            topAdv.html(advSb);
+                            if (len > 1) {
+                                $('#slides').slidesjs({
+                                    play: {
+                                        //active: true,
+                                        auto: true,
+                                        interval: 4000,
+                                        swap: false
+                                    }
+                                });
+                            }
+                            $('.slider-wrap .close a').closeAncestor();
+                        }
+                    },
+                    error: function(mes) {//没有取到数据
+                        AdPosition.topInit();
+                    }
+                });
+            }
+        } else {
+            $("#slides").parent().hide();
+        }
+
+
+    },
+
+    caseTopInit: function() {
+        var topCookie = getCookie("xClose");
+        if (topCookie == null) {
+            var advSb = "<div class='close'> <a href='javascript:;' class='c-icon c-close'>关闭</a></div><div id='slides' class='slider'>";
+            var topAdv = $("#topAd");
+
+            if (IsUndefined(topAdv)) {
+                advUrl = advertisement + caseTopAdvId;
+                $.ajax({
+                    url: advUrl,
+                    type: "Get",
+                    dataType: 'jsonp',
+                    success: function (adv) {
+                        if (adv != null) {
+                            var len = adv.length;
+                            if (len > 0) {
+
+                                for (var i = 0; i < len; i++) {
+                                    var advSet = adv[i];
+                                    var picSrc = advSet.PictureSrc;
+                                    var picHref = advSet.PictureHref;
+                                    var picAlt = advSet.PictureAlt;
+
+                                    if (picHref == "" || picHref == null) {
+                                        advSb += "<a href='javascript:void(0);' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    } else {
+                                        advSb += "<a href='" + picHref + "' target='_blank' style='background:url(" + picPath + picSrc + ") no-repeat top center;height:60px;display:block;width:100%'></a>";
+                                    }
+                                }
+                            }
+                            advSb += "</div>";
+                            topAdv.html(advSb);
+                            if (len > 1) {
+                                $('#slides').slidesjs({
+                                    play: {
+                                        //active: true,
+                                        auto: true,
+                                        interval: 4000,
+                                        swap: false
+                                    }
+                                });
+                            }
+                            $('.slider-wrap .close a').closeAncestor();
+                        }
+                    },
+                    error: function (mes) {//没有取到数据
+                        AdPosition.topInit();
+                    }
+                });
+            }
+        } else {
+            $("#slides").parent().hide();
+        }
+    }
+
+}
+
+

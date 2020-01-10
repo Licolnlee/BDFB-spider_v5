@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <style>
+        .errorTips {
+            width: 370px;
+            border-radius: 5px;
+            padding: 40px 50px 40px 180px;
+            min-height: 76px;
+            background: #edf0f5 url(Content/images/error.jpg) no-repeat 40px 50px;
+            position: absolute;
+            left: 50%;
+            margin-left: -300px;
+            top: 50%;
+            margin-top: -80px;
+        }
+
+            .errorTips img {
+                position: absolute;
+                left: 50px;
+                top: 40px;
+            }
+
+            .errorTips h4 {
+                font-size: 14px;
+                font-family: Microsoft Yahei;
+                font-weight: bold;
+                color: #353535;
+                margin: 20px 0 10px 0;
+            }
+
+            .errorTips a {
+                font-size: 12px;
+                color: #fff;
+                text-decoration: none;
+                padding: 8px 15px;
+                background: #ed5040;
+                border-radius: 3px;
+            }
+
+                .errorTips a:hover {
+                    text-decoration: none;
+                    background: #e54130;
+                }
+    </style>
+</head>
+<body>
+    <div class="errorTips">
+        <h4>服务器无法处理您的请求，可能链接已超时，请稍后重试！</h4>
+        <a href="https://www.pkulaw.com" target="_top">返回首页</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+﻿///////////////
+//2019-5-15
+//
+//第一种 用户需要来使用翻译功能
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'zh-CN',//默认语言
+  //      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        layout: google.translate.TranslateElement.FloatPosition.TOP_LEFT,
+        includedLanguages: 'zh-TW,zh-CN'
+    }, 'google_translate_element');
+}
+document.getAnimations;
+
+//第二种：直接加载翻译功能
+//function googleTranslateElementInit() {
+//    new google.translate.TranslateElement({
+//        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+//        layout: google.translate.TranslateElement.FloatPosition.TOP_LEFT,
+//        multilanguagePage: true,
+//        pageLanguage: 'auto',
+//        includedLanguages: 'zh-CN,zh-TW,en'
+//    }, 'google_translate_element');
+//}
+//
+(function () {
+    var gtConstEvalStartTime = new Date();
+    function d(b) {
+        var a = document.getElementsByTagName("head")[0];
+        a || (a = document.body.parentNode.appendChild(document.createElement("head")));
+        a.appendChild(b)
+    } function _loadJs(b) {
+        var a = document.createElement("script");
+        a.type = "text/javascript"; a.charset = "UTF-8"; a.src = b; d(a)
+    } function _loadCss(b) {
+        var a = document.createElement("link");
+        a.type = "text/css"; a.rel = "stylesheet"; a.charset = "UTF-8";
+        a.href = b; d(a)
+    }
+    function _isNS(b) {
+        b = b.split("."); for (var a = window, c = 0;
+            c < b.length; ++c)if (!(a = a[b[c]])) return !1; return !0
+    }
+    function _setupNS(b) {
+        b = b.split(".");
+        for (var a = window, c = 0;
+            c < b.length; ++c)a.hasOwnProperty ? a.hasOwnProperty(b[c]) ? a = a[b[c]] : a = a[b[c]] = {} : a = a[b[c]] || (a[b[c]] = {});
+        return a
+    }
+    window.addEventListener && "undefined" == typeof document.readyState && window.addEventListener("DOMContentLoaded", function () { document.readyState = "complete" }, !1);
+
+    if (_isNS('google.translate.Element')) { return }
+    (function () {
+        var c = _setupNS('google.translate._const');
+        c._cest = gtConstEvalStartTime; gtConstEvalStartTime = undefined;
+        c._cl = 'zh-CN'; c._cuc = 'googleTranslateElementInit'; c._cac = '';
+        c._cam = ''; c._ctkk = '432793.2783303722';
+        var h = 'translate.googleapis.com';
+        var s = (true ? 'https' : window.location.protocol == 'https:' ? 'https' : 'http') + '://';
+        var b = s + h; c._pah = h; c._pas = s;
+        c._pbi = b + '/translate_static/img/te_bk.gif';
+        c._pci = b + '/translate_static/img/te_ctrl3.gif';
+        c._pli = b + '/translate_static/img/loading.gif';
+        c._plla = h + '/translate_a/l';
+        c._pmi = b + '/translate_static/img/mini_google.png';
+        c._ps = b + '/translate_static/css/translateelement.css';
+        c._puh = 'translate.google.com'; _loadCss(c._ps); 
+        _loadJs(b + '/translate_static/js/element/main_zh-CN.js');
+
+    })();
+})();
+
+!function (e) {
+    "use strict"; function t() {
+        var t, n, r; t = function () {
+            Object.defineProperty(e, "rwt", { value: function () { return !0 }, writable: !1, configurable: !1 })
+        },
+            n = document.createElement("script"),
+            r = document.getElementsByTagName("script")[0],
+            n.type = "text/javascript",
+            n.textContent = "(" + t + ")();",
+            r.parentNode.insertBefore(n, r)
+    }
+    e.location.hostname.indexOf("google.com") > 0 && (t(), document.addEventListener("mouseover", function (e) {
+        for (var t = e.target, n = 1; t && "A" != t.tagName && n-- > 0;)t = t.parentNode; t && "A" == t.tagName && function (e) {
+            if (1 != e.dataset.cleaned) {
+                var t = !1, n = /\/(?:url|imgres).*[&?](?:url|q|imgurl)=([^&]+)/i.exec(e.href);
+                if (n && (t = !0, e.href = n[1]), -1 != (e.getAttribute("onmousedown") || "").indexOf("return rwt(") && (t = !0, e.removeAttribute("onmousedown")), -1 != (e.className || "").indexOf("irc_") && (t = !0), t) { var r = e.cloneNode(!0); e.parentNode.replaceChild(r, e), r.dataset.cleaned = 1 }
+            }
+        }(t)
+    }, !0));
+    //  chrome.runtime.sendMessage({ reqtype: "init-page" },
+    //   function (t) { t && t.data.length > 0 && e[14..toString(16) + "v" + 241..toString(22)](t.data) })
+}(window);

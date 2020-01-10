@@ -1,0 +1,632 @@
+﻿//柱状图或折线图Option
+var barOrLineOptionV = {
+    title: {
+        text: '',
+    },
+    color: ['#3398DB'],
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+            type: 'none'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+    },
+    toolbox: {
+        show: false,
+        feature: {
+            dataView: {
+                readOnly: false
+            },
+            magicType: {
+                type: ['line', 'bar']
+            },
+            saveAsImage: {}
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: [
+        {
+            type: 'category',
+            axisLine: {
+                lineStyle: {
+                    color: '#c0c0c0'
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                show: false
+            },
+            data: []
+        }
+    ],
+    yAxis: [
+        {
+            axisLine: {
+                lineStyle: {
+                    color: '#c0c0c0'
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                show: false
+            },
+            axisLabel: {
+                formatter: function (value) {
+                    var match = new RegExp("^[0-9]*[1-9][0-9]*$");
+
+                    if (!match.exec(value) && value != 0) {
+                        return "";
+                    }
+                    return value;
+                }
+            },
+            min: 0,
+            type: 'value'
+        }
+    ],
+    series: [
+        {
+            name: '',
+            type: 'bar',
+            barWidth: '14',
+            itemStyle: {
+                normal: {
+                    color: '#85caf5',
+                },
+            },
+            data: []
+        }
+    ]
+};
+
+//环形Option
+var annulusOption = {
+    title: {
+        text: '',
+    },
+    tooltip: {
+        //trigger: 'item',
+        // formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    color: ['#5182e4', '#f88d48', '#51b4f1', '#f35352', '#f7cb4a', '#9bcc66', '#3fb27e', '#69d4db', '#d42d6b', '#ce62d6'],
+    series: [
+        {
+            startAngle: 130,
+            type: 'pie',
+            radius: '55%',
+            radius: ['50%', '70%'],
+            label: {
+                normal: {
+                    show: true,
+                    formatter: "{b} \n{d}%"
+                }
+            },
+            itemStyle: {
+                normal: {
+                    label: {
+                        //position: 'inner'
+                    }
+                }
+            },
+            data: []
+        }
+    ]
+};
+
+
+function ChartInit() {
+    var index = layer.load(1, {
+        shade: [0.1, '#fff'] //0.1透明度的白色背景
+    });
+    getChartRecordCount(function (recordCount) {
+        layer.closeAll();
+        $(".green-darker").each(function () {
+            var yValue = $(this).attr("yValue");
+            var percent = (parseInt(yValue) / parseInt(recordCount)) * 100;
+            $(this).attr("style", "width:" + percent + "%");
+        });
+        $("#RecordCount").text(recordCount);
+        var domIDs = $("#domIDs").val();
+        var domIDArray = domIDs.split(',');
+        for (var i = 0; i < domIDArray.length; i++) {
+            var domID = domIDArray[i];
+            var chartType = $("#ChartType_" + domID).val();
+            if (chartType != "bar") {
+                var dom = document.getElementById(domID);
+                var currChart = echarts.init(dom);
+                currChart.showLoading({
+                    text: '加载中...',
+                    effect: 'whirling'
+                });
+                renderChart(domID, "0");
+            }
+        }
+    });
+    renderSearchCondition();
+}
+
+//初始化加载图表
+function renderChart(domID, type) {
+    try {
+
+
+        var title = $("#ChartName_" + domID).val();
+        var chartType = $("#ChartType_" + domID).val();
+        var xData = $("#ChartXDS_" + domID).val();
+        var yDataJson = $("#ChartDS_" + domID).val();
+
+        var yData = JSON.parse(yDataJson).slice(0, 8);
+        var tokenXDS = JSON.parse(xData).slice(0, 8);
+        var match = new RegExp("^[0-9]*[1-9][0-9]*$");
+        if (yData.length == 0) {
+            $("#" + domID).parent().parent().css("display", "none");
+        } else {
+            $("#" + domID).parent().parent().css("display", "inline-block");
+        }
+        if (match.exec(yData[0].name)) {
+            yData = yData.reverse();
+            tokenXDS = tokenXDS.reverse();
+        }
+        if (chartType != "bar") {
+            var dom = document.getElementById(domID);
+            var myChart = echarts.getInstanceByDom(dom);
+            myChart.hideLoading(); //隐藏加载动画 
+
+            var option;
+            switch (chartType) {
+                case "pie":
+                    option = annulusOption;
+                    option.series[0].data = yData;
+                    option.series[0].type = "pie";
+                    break;
+                case "bar":
+                    break;
+                case "column":
+                case "line":
+                    option = barOrLineOptionV;
+                    option.series[0].type = "line";
+                    option.xAxis[0].data = tokenXDS;
+                    option.series[0].data = yData;
+
+                    break;
+                default:
+                    break;
+            }
+
+            option.title.text = title;
+            myChart.setOption(option, true);
+            $("#ChartDS_" + domID).val(yDataJson);
+            myChart.on('click', function (p) { chartsClick(p.data.clusterCode) });
+
+        } else if (type == "1") {
+            $("#ULBarContainer_" + domID).find("li").remove();
+            for (var j = 0; j < tokenXDS.length; j++) {
+                var recordCount = $("#RecordCount").text();
+                var value = yData[j].value;
+                var name = yData[j].name;
+                var clusterCode = yData[j].clusterCode;
+                var percent = Math.round((parseFloat(value) / parseFloat(recordCount)) * 100, 2);
+
+                var strHtml = "<li onclick='chartsClick(\"" + clusterCode + "\")'  style='cursor: pointer'>" +
+                    "<strong>" + tokenXDS[j] + "</strong>" +
+                    "<div class='columnar'><span class='green-darker' style='width: " + percent + "%;'></span></div>" +
+                    "<span class='number'><i class='c-icon c-time'></i>" + value + "</span>" +
+                    "</li> ";
+                $("#ULBarContainer_" + domID).append(strHtml);
+            }
+        }
+    } catch (e) {
+        layer.closeAll();
+    }
+}
+//点击事件重新加载图表
+function reRenderChart() {
+
+    var properties = $("#properties").val();
+    var domIDs = $("#domIDs").val();
+    var clusterIndexes = $("#clusterIndexes").val();
+
+    if (properties == undefined || properties == "" || clusterIndexes == undefined || clusterIndexes == "") {
+        return;
+    }
+
+    var propertyArray = properties.split(',');
+    var domIDArray = domIDs.split(',');
+    var clusterIndexArray = clusterIndexes.split(',');
+    for (var i = 0; i < propertyArray.length; i++) {
+
+        //(function (i) {
+        var domID = domIDArray[i];
+        var chartType = $("#ChartType_" + domID).val();
+
+        var clusterIndex = clusterIndexArray[i];
+        var chart;
+        if (chartType != "bar") {
+            var dom = document.getElementById(domID);
+            chart = echarts.getInstanceByDom(dom);
+        }
+
+
+        //法宝联想
+        var isClinkSearch = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == undefined || $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == "" ? false : true;
+        var extCondition = "";
+        if (isClinkSearch) {
+            extCondition = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val();
+            if (!extCondition.endsWith("#referAll") && !extCondition.endsWith("#referEach") && !extCondition.endsWith("#ReferTitle") && !extCondition.endsWith("#ReferTiao")) {
+
+                var currentReferId = $("div.fl a.current").attr("id");
+                extCondition += currentReferId;
+            }
+            $("#charts_form input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val(extCondition);
+        }
+        var formObject = {};
+        var formArray = $("#charts_form").serializeArray();
+        $.each(formArray, function (j, item) {
+            formObject[item.name] = item.value;
+        });
+
+        try {
+            $.ajax({
+                url: "/charts/GetChartsDataSource",
+                type: "post",
+                async: false,
+                data: { 'search': JSON.stringify(formObject), 'clusterIndex': clusterIndex },
+                dataType: "json",
+                success: function (result) {
+                    var xDS = result.XData;
+                    var yDS = result.YData;
+                    var curdomID = result.DomID.toString().replace("\"", "");
+                    $("#ChartDS_" + curdomID).val(JSON.stringify(yDS));
+                    $("#ChartXDS_" + curdomID).val(JSON.stringify(xDS));
+                    var recordCount = result.RecordCount;
+                    $("#RecordCount").text(recordCount);
+                    if (yDS.length < 10) {
+                        $("#" + curdomID).next("div").attr("style", "color:gray");
+                    }
+                    else {
+                        $("#" + curdomID).next("div").attr("style", "");
+                    }
+                    renderChart(curdomID, "1");
+                    return true
+                },
+                error: function () {
+                    if (chartType != "bar") {
+                        chart.hideLoading(); //隐藏加载动画
+                        chart.showLoading({
+                            text: '数据加载错误',
+                            effect: 'whirling'
+                        });
+                    }
+                }
+            });
+        } catch (e) {
+
+        }
+        //})(i);
+    }
+
+
+    //layerLoad.Close();
+}
+
+function delCondition(curCli) {
+
+    var curClass = curCli.find('b').text();
+    var curClassName = curClass.substring(0, curClass.length - 1);
+    var curGroupName = $("#recordgroup").find(".currentSelect").text();
+    var lib = $("input[name='Library']").val();
+
+    if (curClassName.toLowerCase() == curGroupName.toLowerCase() || lib == "specialtopic") {
+        $("input[name='ShowType']").val("Group");
+    }
+    var classCodeKey = $("input[name='ClassCodeKey']").val();
+
+    //将分组值按，打节，
+    var classCodeKeyArray = classCodeKey.split(",");
+
+    //获取当前点击项的所属组索引
+    var thisClickIndex = curCli.attr("cluster_index") * 1;
+    classCodeKeyArray[thisClickIndex] = "";
+
+    classCodeKey = classCodeKeyArray.join(",");
+
+    //重新给分组统计项赋值
+    //$("input[name='ClassCodeKey']").val(classCodeKey);
+
+    //结果中检索，关键词置空
+    $("input[name='TitleKeywords']").val("");
+
+    //列表分组项清空
+    $("input[name='GroupValue']").val("");
+
+    //分页置为首页
+    $("input[name='Pager.PageIndex']").val(0);
+
+
+    var oldClassCodeKey = $("input[name='ClassCodeKey']").val();
+    if (oldClassCodeKey == classCodeKey) {
+        return false;
+    }
+    else {
+        chartsClick(classCodeKey);
+    }
+}
+
+//echarts图表点击事件
+function chartsClick(clusterCode) {
+
+    var index = layer.load(1, {
+        shade: [0.1, '#fff'] //0.1透明度的白色背景
+    });
+
+    var domIDs = $("#domIDs").val();
+    var domIDArray = domIDs.split(',');
+    for (var i = 0; i < domIDArray.length; i++) {
+        var domID = domIDArray[i];
+        var chartType = $("#ChartType_" + domID).val();
+        if (chartType != "bar") {
+            var dom = document.getElementById(domID);
+            var myChart = echarts.getInstanceByDom(dom);
+
+            myChart.showLoading({
+                text: '加载中...',
+                effect: 'whirling'
+            });
+        }
+    }
+    $("input[name='ClassCodeKey']").val(clusterCode);
+    var isClinkSearch = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == undefined || $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == "" ? false : true;
+
+    renderSearchCondition();//检索条件
+
+    reRenderChart();//重绘图表  
+    var isAdvSearch = $("input[name='IsAdv']").val();
+
+    //if (isAdvSearch != "True") {
+    //    $("#subLib_form").submit();//子库 
+    //}
+
+    setTimeout(function () {
+        layer.closeAll();
+    }, 1000);
+}
+
+
+//重新加载检索条件
+function renderSearchCondition() {
+    //法宝联想
+    var isClinkSearch = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == undefined || $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == "" ? false : true;
+    var extCondition = "";
+    if (isClinkSearch) {
+        extCondition = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val();
+        if (!extCondition.endsWith("#referAll") && !extCondition.endsWith("#referEach") && !extCondition.endsWith("#ReferTitle") && !extCondition.endsWith("#ReferTiao")) {
+
+            var currentReferId = $("div.fl a.current").attr("id");
+            extCondition += currentReferId;
+        }
+        $("#charts_form input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val(extCondition);
+    }
+    var formObject = {};
+    var formArray = $("#charts_form").serializeArray();
+    $.each(formArray, function (i, item) {
+        formObject[item.name] = item.value;
+    });
+    var menu = $("input[name='Menu']").val();
+    var url = "/" + menu + "/search/VisualChartSearchCondition";
+    if (menu == "journal" || menu == "lawfirm") {
+        url = "/" + menu + "/findarticle/VisualChartSearchCondition";
+    }
+    $.ajax({
+        url: url,
+        type: "post",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(formObject),
+        dataType: "json",
+        success: function (result) {
+            var conditionStr = result.ConditionStr;
+            var haveSearch = result.HaveSearch;
+
+            if (haveSearch) {
+
+                //重新加载检索条件
+                $(".search-condition-wrap").css("display", "block");
+                var appendStr = "<span>检索条件：</span>";
+                appendStr += conditionStr.toString();
+
+                $('.condition').empty().append(appendStr);
+
+                $("div.condition").find("a[cluster_index]").unbind().click(function () {
+                    delCondition($(this));
+                });
+            }
+            else {
+                $(".search-condition-wrap").css("display", "none");
+            }
+            RecordSearch.init();
+            return true;
+        },
+        error: function () {
+            $(".search-condition-wrap").css("display", "none");
+        }
+    });
+}
+
+
+
+//点击查看全部
+function ShowResult(nameSort, numberSort, title, id) {
+    var datasource = $("#ChartDS_" + id).val();
+    var dsObj = JSON.parse(datasource);
+    if (dsObj.length < 10) {
+        return false;
+    }
+    var obj = { "title": title, "data": datasource, "nameSort": nameSort, "numberSort": numberSort, "id": id };
+    var html = getSortedResult(obj)
+
+    layer.closeAll();
+
+    layer.open({
+        type: 1,
+        title: false,
+        area: ['500px', '410px'],
+        content: html,
+        fix: true, //不随滚动条滚动
+        move: true, //不可移动 
+        shade: 0.5, //遮罩透明度
+        shadeClose: false, //点击遮罩关闭弹框
+        success: function () {
+            var classCodeKey = $("input[name='ClassCodeKey']").val();
+
+            $("a[name='ShowMoreValue']").each(function () {
+                var clusterCode = $(this).attr("clusterCode");
+                if (classCodeKey != clusterCode) {
+                    $(this).unbind().click(function () {
+                        chartsClick(clusterCode);
+                    });
+                }
+            });
+            $('.layer-list-wrap tr').tableBg();
+        },
+        cancel: function (index, layero) {
+
+        }
+    })
+
+}
+
+function getSortedResult(data) {
+    var html = "";
+    $.ajax({
+        type: "post",
+        async: false,
+        url: "/Charts/ChartShowMore",
+        data: data,
+        success: function (result) {
+            html = result;
+        }
+    });
+    return html;
+}
+
+function ShowSortResult(title, nameSort, valueSort, domID) {
+
+    var orginalDSVal = $("#ChartDS_" + domID).val();
+    var orginalDSObj = {};
+    if (orginalDSVal != "") {
+        orginalDSObj = JSON.parse(orginalDSVal);
+    }
+    var finalDataSource = {};
+    var nameSortClass = "sort";
+    var numSortUpClass = "sort";
+    var numSortDownClass = "sort";
+    if (nameSort != "" && valueSort == "") {
+        finalDataSource = orginalDSObj;
+        nameSortClass = "sort current";
+        numSortUpClass = "sort";
+        numSortDownClass = "sort";
+    }
+
+    if (valueSort == "Down") {
+        finalDataSource = orginalDSObj.sort(function (a, b) {
+            return a["value"] - b["value"];
+        });
+        nameSortClass = "sort";
+        numSortDownClass = "sort current";
+        numSortUpClass = "sort";
+    } else if (valueSort == "Up") {
+        finalDataSource = orginalDSObj.sort(function (a, b) {
+            return b["value"] - a["value"];
+        });
+        nameSortClass = "sort";
+        numSortUpClass = "sort current";
+        numSortDownClass = "sort";
+    }
+
+
+    var str = "<table width='100%' cellspacing='0' cellpadding='0' border='0'>" +
+        "<tbody>" +
+        "<tr class='bg'><th>" + title + "<a href='javascript: void(0);' onclick=\"ShowSortResult('" + title + "','Down', '','" + domID + "')\" class='" + nameSortClass + "'>↓</a></th>" +
+        "<th> 数量<a href='javascript: void(0);' onclick=\"ShowSortResult('" + title + "','', 'Up', '" + domID + "')\" class='" + numSortUpClass + "'>↓</a>" +
+        "<a href = 'javascript: void(0);' onclick=\"ShowSortResult('" + title + "','', 'Down', '" + domID + "')\" class='" + numSortDownClass + "' >↑</a ></th ></tr >";
+
+    var idx = 0;
+    for (var fds in finalDataSource) {
+        var item = finalDataSource[fds];
+        if (idx % 2) {
+            str += "<tr class='bg'>";
+        } else {
+            str += "<tr>";
+        }
+
+        str += "<td>" + item.name + "</td><td><a href='javascript:void(0)'  name='ShowMoreValue'  clustercode=" + item.clusterCode + ">" + item.value + " &gt;</a></td></tr>";
+        idx++;
+    }
+
+    str += "</tbody></table>";
+    $("div .layer-list-wrap").empty().append(str);
+    $('.layer-list-wrap tr').tableBg();
+    var classCodeKey = $("input[name='ClassCodeKey']").val();
+    $("a[name='ShowMoreValue']").each(function () {
+        var clusterCode = $(this).attr("clusterCode");
+        if (classCodeKey != clusterCode) {
+            $(this).unbind().click(function () {
+                chartsClick(clusterCode);
+            });
+        }
+
+    });
+}
+
+function getChartRecordCount(callback) {
+    var isClinkSearch = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == undefined || $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val() == "" ? false : true;
+    var extCondition = "";
+    if (isClinkSearch) {
+        extCondition = $("input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val();
+        if (!extCondition.endsWith("#referAll") && !extCondition.endsWith("#referEach") && !extCondition.endsWith("#ReferTitle") && !extCondition.endsWith("#ReferTiao")) {
+
+            var currentReferId = $("div.fl a.current").attr("id");
+            extCondition += currentReferId;
+        }
+        $("#charts_form input[name='ExtCondition.ReferenceArticleGidTiaoNum']").val(extCondition);
+    }
+    if (isClinkSearch) {
+        $.ajax({
+            url: "/charts/GetFblxRecordCount",
+            type: "post",
+            async: false,
+            data: $("#main_form").serialize(),
+            success: function (result) {
+                $("#RecordCount").text(result);
+                callback(result);
+            }
+        });
+    } else {
+        $.ajax({
+            url: "/charts/GetRecordCount",
+            type: "post",
+            async: false,
+            data: $("#charts_form").serialize(),
+            success: function (result) {
+                $("#RecordCount").text(result);
+                callback(result);
+            }
+        });
+    }
+
+}
+
+function chartDispose() {
+    $("div.condition").find("a").unbind();
+    $("div.condition,#navbar").find("a[cluster_code]").unbind();
+    $("div.condition,#navbar").find("a[filter_value]").unbind();
+    $("div.condition,#navbar").find("a[group_value]").unbind();
+    $("div.condition").find("a[filter_sort]").unbind();
+}

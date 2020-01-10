@@ -1,0 +1,202 @@
+﻿
+
+
+var CaseReportFun = {
+    init: function () {
+
+        CaseReportFun.dispose();
+
+        //购物车删除
+        $(".c-real").click(function () {
+            //$(this).click(function() {
+            var gid = $(this).parent().find("input[name='shoppingGid']").val();
+            var deletehtml = $(this).parent().parent();
+
+            var existGid = $("#shoppingCartGid").val();
+            var existGids = existGid.split(',');
+            var isExist = $.inArray(gid, existGids);
+            //-1说明不存在
+            if (isExist >= 0) {
+
+                $.post("/Full/DeleteShoppingCart", { gids: gid }, function (data) {
+                    if (data != "0") {
+                        deletehtml.remove();
+                        existGids.splice(isExist, 1);
+
+                        $("#shoppingCartGid").val(existGids.join(','));
+                        var martCount = $(".number").html();
+                        martCount = martCount - 1;
+
+                        if (martCount == 0) {
+                            $(".number").hide();
+                        }
+                        $(".number").html(martCount);
+
+                        var count = $("#articleCount").html();
+                        $("#articleCount").html(count - 1);
+
+                        $(".grid-right").find("input[value='" + gid + "']").prev().find("i").attr("class", "c-icon c-search-report-on");
+
+
+                    }
+                });
+            }
+            // });
+        });
+        //报告文章删除
+        $(".c-virtual").click(function () {
+
+            var gid = $(this).parent().find("input[name='caseReportGid']").val();
+            var deletehtml = $(this).parent().parent();
+
+            var options = $("#report option:selected"); //获取选中的项
+            var caseReportId = options.val();
+
+            $.post("/UserRelated/DeleteArticleInCart", { caseReportId: caseReportId, articleId: gid }, function (data) {
+                if (data == "true") {
+                    deletehtml.remove();
+                    var count = $("#articleCount").html();
+                    $("#articleCount").html(count - 1);
+                }
+            });
+        });
+        //购物车全部删除
+        $(".shopping-delete-all").click(function () {
+
+            //删除购物车的数据
+            $.post("/Full/DeleteShoppingCart", {}, function(data) {
+                if (data != "0") {
+
+                    $(".number").html(0);
+                    $(".number").hide();
+                    $("#articleCount").html(0);
+                    $("#shoppingCartGid").val("");
+                    $("#shoppingList").find("li").remove();
+                    $(".grid-right").find("div[class='search-report-wrap']").find("i").attr("class", "c-icon c-search-report-on");
+                }
+            });
+            
+            //删除案例报告的数据
+            var gids = new Array();
+            $("#shoppingList").find("input[name='caseReportGid']").each(function () {
+                gids.push($(this).val());
+            });
+            if (gids.length > 0) {
+                gids = gids.join(",");
+
+                var options = $("#report option:selected"); //获取选中的项
+                var caseReportId = options.val();
+
+                $.post("/UserRelated/DeleteArticleInCart", { caseReportId: caseReportId, articleId: gids }, function (data) {
+                    if (data != "0") {
+                        //为0就是删除失败或者没有匹配的数据                        
+                    }
+                });
+            }
+
+        });
+        //购物车下载
+        $('.shopping-down-all').click(function () {
+            //var me = $(this);
+            //var W = parseInt($('.down-content-1').outerWidth());
+            event.stopPropagation();
+            $('.down-content-1').css({
+                //width: W - 120,
+                left: 250,
+                zIndex: 99999,
+                display: "block"
+            });
+        });
+        $('.down-content-1').mouseleave(function () {
+            $(this).hide();
+        });
+
+        $(window).click(function () {
+            $(".down-content-1").hide();
+        });
+        //购物车列表下载
+        $('#shoppingDownload').click(function () {
+
+            var gidParam = new Array();
+
+            $("#shoppingList").find("input[name='shoppingGid']").each(function () {
+                gidParam.push($(this).val());
+            });
+            $("#shoppingList").find("input[name='caseReportGid']").each(function () {
+                gidParam.push($(this).val());
+            });
+
+
+
+            if (gidParam.length == 0) {
+                return false;
+            }
+            gidParam = gidParam.join(",");
+
+            var orderIndex = $("input[name='OrderByIndex']").val();
+
+            $("input[name='shoppingBatchDownload']:radio:checked").each(function () {
+                if ($(this).val() != null && $(this).val() != undefined) {
+
+                    var form = "";
+                    var catalogType = $(this).val();
+                    switch (catalogType) {
+                        case 'catalogTxt':
+                        case 'catalogWord':
+                        case 'catalogHtml':
+                        case 'catalogExcel':
+
+                            form = $("<form></form>");
+                            form.attr('action', '/full/DownloadCatalog');
+                            form.attr('method', 'post');
+                            form.attr('target', '_blank');
+
+                            form.append("<input name='typeName' value='" + catalogType + "'/>");
+                            form.append("<input name='library' value='pfnl'/>");
+                            form.append("<input name='gids' value='" + gidParam + "'/>");
+                            form.append("<input name='orderIndex' value='" + orderIndex + "'/>");
+                            form.append("<input name='curLib' value='pfnl'/>");
+                            form.appendTo("body");
+                            form.css('display', 'none');
+                            form.submit();
+                            form.remove();
+                            break;
+                        case 'fullTxt':
+                        case 'fullWord':
+                        case 'fullHyper':
+                        case 'fullPure':
+                        case 'english':
+                        case 'chinese':
+                        case 'block':
+                        case 'list':
+                        case 'EnglishTxt':
+                            form = $("<form></form>");
+                            form.attr('action', '/full/DownloadFullText');
+                            form.attr('method', 'post');
+                            form.attr('target', '_blank');
+
+                            form.append("<input name='typeName' value='" + catalogType + "'/>");
+                            form.append("<input name='library' value='pfnl'/>");
+                            form.append("<input name='gids' value='" + gidParam + "'/>");
+                            form.append("<input name='curLib' value='pfnl'/>");
+                            form.appendTo("body");
+                            form.css('display', 'none');
+                            form.submit();
+                            form.remove();
+                            break;
+                    }
+                }
+            });
+            return false;
+        });
+
+
+    },
+    dispose: function () { 
+        $('.c-real').unbind();
+        $('.c-virtual').unbind();
+        $(".shopping-delete-all").unbind();
+        $('.shopping-down-all').unbind();
+        $('#shoppingDownload').unbind();
+    }
+}
