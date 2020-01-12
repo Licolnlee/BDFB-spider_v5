@@ -109,7 +109,7 @@ def singeldownload():
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'ASP.NET_SessionId=zwebkkakbo1amu1j1brz42m0; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=zwebkkakbo1amu1j1brz42m0; CheckIPAuto=; CheckIPDate=2020-01-12 16:51:24; User_User=phone2020010610184515819',
+        'Cookie': 'ASP.NET_SessionId=xsx3ratnhiqvobn1qxlvgff2; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=xsx3ratnhiqvobn1qxlvgff2; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1',
         'Host': 'www.pkulaw.cn',
         'Referer': 'https://www.pkulaw.cn/case/pfnl_a6bdb3332ec0adc4bf6da0b52d04589a8445f45b7079568dbdfb.html?match=Exact',
         # 'sec-ch-ua': 'Google Chrome 79',
@@ -223,5 +223,29 @@ def singeldownload():
 def reqcookie():
     url2 = "https://www.pkulaw.cn/case/CheckLogin/Login"
     data2 = {
-
+        'menu': 'case',
+        'UserName': '16567408533',
+        'PassWord': '16567408533',
     }
+    headers2 = {
+        'Host': 'www.pkulaw.cn',
+        'Connection': 'keep-alive',
+        'Content-Length': '114',
+        'Origin': 'https: // www.pkulaw.cn',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Accept': '*/*',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Referer': 'https://www.pkulaw.cn/Case/',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
+    }
+
+    response = requests.Session()
+    res = response.post(url = url2, data = data2, headers = headers2, timeout = 10)
+    cookie = res.cookies.get_dict()
+    print(cookie)
+
+
+# reqcookie()
+singeldownload()
