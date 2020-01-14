@@ -110,7 +110,7 @@ def singeldownload():
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'ASP.NET_SessionId: kdcox0fubhob3r4mwobyajsq; QINGCLOUDELB: 59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId: kdcox0fubhob3r4mwobyajsq; CheckIPAuto=; CheckIPDate: 2020-01-13 16:58:50; User_User=phone2020010610184515819; FWinCookie=1',
+        'Cookie': 'CookieId=bl45i2b0hg0g3jwro30sczh2; ASP.NET_SessionId=bl45i2b0hg0g3jwro30sczh2; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CheckIPAuto=; CheckIPDate=2020-01-14 17:41:47',
         # 'Cookie': 'ASP.NET_SessionId=xsx3ratnhiqvobn1qxlvgff2; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=xsx3ratnhiqvobn1qxlvgff2; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1',
         'Host': 'www.pkulaw.cn',
         'Referer': 'https://www.pkulaw.cn/case/pfnl_a6bdb3332ec0adc4bf6da0b52d04589a8445f45b7079568dbdfb.html?match=Exact',
@@ -160,8 +160,13 @@ def singeldownload():
     url1 = 'https://www.pkulaw.cn/case/FullText/DownloadFile?'+urlencode(data1)
     try:
         reqcookie()
+        time.sleep(60)
         with open('./Cookies/req_Cookies.txt','r',encoding = 'utf-8') as f1:
-            headers1.update('Cookie')
+            cookie = f1.readline()
+            print(headers1)
+            print(cookie)
+            headers1.update(Cookie = string(cookie))
+            print(headers1)
         print("Requesting Pages...")
         print(headers1.get('Cookie'))
         # ses = requests.Session()
@@ -230,13 +235,13 @@ def reqcookie():
     url2 = "https://www.pkulaw.cn/case/CheckLogin/Login"
     data2 = {
         'menu': 'case',
-        'UserName': '16567408533',
-        'PassWord': '16567408533',
+        'UserName': '16566408577',
+        'PassWord': '16566408577',
     }
     headers2 = {
         'Host': 'www.pkulaw.cn',
         'Connection': 'keep-alive',
-        'Content-Length': '114',
+        'Content-Length': '113',
         'Origin': 'https: // www.pkulaw.cn',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -249,7 +254,8 @@ def reqcookie():
     }
 
     response = requests.Session()
-    res = response.post(url = url2, data = data2, headers = headers2, timeout = 10)
+    res = response.post(url = url2, data = data2, headers = headers2, timeout = 10,stream = True)
+    print(res.status_code)
     cookie = res.cookies.get_dict()
     t = res.request.headers.get('CheckIPDate')
     # print(t)
@@ -258,10 +264,10 @@ def reqcookie():
     os.makedirs('./Cookies/',exist_ok = True)
     with open('./Cookies/req_Cookies.txt','w',encoding = 'utf-8') as f:
         for key,value in cookie.items():
-            f.write(key+': '+string(value)+'; ')
+            f.write(key+'='+string(value)+'; ')
         f.write('CheckIPAuto=; ')
-        f.write('CheckIPDate: '+t+'; ')
-        f.write('User_User=phone2020010610184515819; FWinCookie=1')
+        f.write('CheckIPDate='+t)
+        # f.write('User_User=phone2020011214400673851')
         # 'Cookie': 'ASP.NET_SessionId=tigxfhukj3h1p5empnlhbvyb; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CookieId=tigxfhukj3h1p5empnlhbvyb; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1'
         # # 'Cookie': 'pkulaw_v6_sess
     f.close()
@@ -269,7 +275,9 @@ def reqcookie():
 
 # reqcookie()
 singeldownload()
-
+# print(headers)
+# headers.update(Cookie = 'ASP.NET_SessionId=tigxfhukj3h1p5empnlhbvyb; QI')
+# print(headers)
 
 def test_time():
     local_t = time.strftime('%y%y-%m-%d %H:%M:%S',time.localtime())
