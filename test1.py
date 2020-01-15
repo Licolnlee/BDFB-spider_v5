@@ -110,8 +110,7 @@ def singeldownload():
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'CookieId=kwm4vmxb3dcaoewu044bqm5v; ASP.NET_SessionId=kwm4vmxb3dcaoewu044bqm5v; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CheckIPAuto=; CheckIPDate=2020-01-15 15:23:56',
-        # 'Cookie': 'ASP.NET_SessionId=xsx3ratnhiqvobn1qxlvgff2; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=xsx3ratnhiqvobn1qxlvgff2; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1',
+        'Cookie': 'CookieId=q5mn0zsjmj2zgeucpikjpvzi; ASP.NET_SessionId=q5mn0zsjmj2zgeucpikjpvzi; QINGCLOUDELB=a290af14cd98968af8ae55dd4f216a9be13319b57ab5f3b439cc153975d86b02',
         'Host': 'www.pkulaw.cn',
         'Referer': 'https://www.pkulaw.cn/case/pfnl_a6bdb3332ec0adc4bf6da0b52d04589a8445f45b7079568dbdfb.html?match=Exact',
         # 'sec-ch-ua': 'Google Chrome 79',
@@ -122,32 +121,6 @@ def singeldownload():
         # 'Sec-Origin-Policy': '0',
         # 'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
-        # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-        #               'Chrome/79.0.3945.88 Safari/537.36',
-        # # 'User-Agent': ua.random,
-        # 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,
-        #         # # 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        #         # 'Host': 'www.pkulaw.com',
-        #         # # 'Sec-Fetch-Dest':'empty',
-        #         # # 'X-Requested-With': 'XMLHttpRequest',
-        #         # 'DNT': '1',
-        #         # # 'Origin': 'https://www.pkulaw.com',
-        #         # 'Sec-Fetch-Site': 'same-origin',
-        #         # 'sec-ch-ua': 'Google Chrome 79',
-        #         # 'Sec-Fetch-Dest': 'document',application/signed-exchange;v=b3;q=0.9',
-        # 'Accept-Encoding': 'gzip, deflate, br',
-        # 'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-        # 'Connection': 'keep-alive',
-        # # 'Content-Length': '526',
-        # 'Sec-Fetch-Mode': 'navigate',
-        # 'Sec-Fetch-User': '?1',
-        # 'Sec-Origin-Policy': '0',
-        # 'Upgrade-Insecure-Requests': '1',
-        # 'Referer': 'https://www.pkulaw.cn/case/pfnl_a6bdb3332ec0adc4bf6da0b52d04589a8445f45b7079568dbdfb.html?match=Exact',
-        # # 'Cookie': 'redSpot=false; pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
-        # # 'Cookie': 'Catalog_Search=; ASP.NET_SessionId=spcqaqc2s4o0wo44wqmpq3ff; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CookieId=nxms1otryaob51eiuakv3gdc; CheckIPAuto=; CheckIPDate=2020-01-10 18:23:11; User_User=phone2020010610184515819; bdyh_record=1970324901429167%2C1970324901429169%2C1970324904312067%2C1970324905695111%2C1970324848373893%2C1970324905695537%2C1970324901429168%2C1970324848373860%2C1970324923942454%2C1970324848266918%2C1970324904617424%2C1970324846989066%2C1970324847175278%2C1970324904617425%2C1970324904312066%2C1970324846989064%2C1970324904617426%2C1970324904312068%2C1970324904617423%2C1970324923942453%2C'
-        # 'Cookie': 'ASP.NET_SessionId=tigxfhukj3h1p5empnlhbvyb; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CookieId=tigxfhukj3h1p5empnlhbvyb; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1'
-        # # 'Cookie': 'pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
     }
     data1 = {
         'library': 'pfnl',
@@ -159,14 +132,15 @@ def singeldownload():
     # url1 = 'https://v6downloadservice.pkulaw.com/full/downloadfile'
     url1 = 'https://www.pkulaw.cn/case/FullText/DownloadFile?'+urlencode(data1)
     try:
-        req_cookies()
-        time.sleep(10)
-        with open('./Cookies/req_Cookies.txt', 'r', encoding = 'utf-8') as f3:
-            cookie6 = f3.readline()
-            print('headers4: '+string(headers4))
-            print('cookie6: '+string(cookie6))
-            headers4.update(Cookie = string(cookie6))
-            print('headers4: '+string(headers4))
+        # cookie_up = first_login_reqck()
+        # time.sleep(5)
+        # with open('./Cookies/req_Cookies.txt', 'r', encoding = 'utf-8') as f3:
+        #     cookie6 = f3.readline()
+        #     print('headers4: '+string(headers4))
+        #     print('cookie6: '+string(cookie6))
+        #     headers4.update(Cookie = string(cookie6))
+        #     print('headers4: '+string(headers4))
+        # headers4.update(Cookie = string(cookie_up))
         print("Requesting Pages...")
         print('headers4.getcookie: '+string(headers4.get('Cookie')))
         # ses = requests.Session()
@@ -324,7 +298,6 @@ def singeldownload():
 
 
 def req_cookies():
-    global cookie1
     headers1 = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -399,8 +372,8 @@ def req_cookies():
         'ExitLogin': '',
         'menu': 'case',
         'CookieId': '',
-        'UserName': '16530569067',
-        'PassWord': '16530569067',
+        'UserName': '16566408577',
+        'PassWord': '16566408577',
         'jz_id': '0',
         'jz_pwd': '0',
         'auto_log': '0',
@@ -433,12 +406,17 @@ def req_cookies():
         req = requests.Session( )
         response = req.get(url = url2, headers = headers2, timeout = 10)
         cookie3 = response.cookies.get_dict()
-        cookie3 = dict(cookie3.items()+cookie1.items())
+        cookie4 = {}
+        cookie5 = cookie1
+        cookie4.update(cookie3)
+        cookie4.update(cookie5)
         print('cookie3 = '+string(cookie3))
+        print('cookie4 = ' + string(cookie4))
         os.makedirs('./Cookies/', exist_ok = True)
         with open('./Cookies/req_Cookies.txt', 'w', encoding = 'utf-8') as f2:
-            for key, value in cookie3.items():
+            for key, value in cookie4.items():
                 f2.write(key + '=' + string(value) + '; ')
+            f2.write('FWinCookie=1; User_User=phone2020011214400673851')
         f2.close()
     except Exception as e1:
         print('error2: '+string(e1))
@@ -463,4 +441,112 @@ def req_cookies():
             pass
 
 
+def first_login_reqck():
+    global cookieID
+    url1 = 'https://www.pkulaw.cn/case/CheckLogin/Login'
+
+    data1 = {
+        'Usrlogtype': '1',
+        'ExitLogin': '',
+        'menu': 'case',
+        'CookieId': '',
+        'UserName': '16566408577',
+        'PassWord': '16566408577',
+        'jz_id': '0',
+        'jz_pwd': '0',
+        'auto_log': '0'
+    }
+
+    data2 = {
+        'Usrlogtype': '1',
+        'ExitLogin': '',
+        'menu': 'case',
+        'CookieId': 'gwqimjpsnpemccguu4ns3d0d',
+        'UserName': '',
+        'PassWord': '',
+        'jz_id': '',
+        'jz_pwd': '',
+        'auto_log': ''
+    }
+
+    headers1 = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+        'Connection': 'keep-alive',
+        'Content-Length': '113',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'DNT': '1',
+        'Host': 'www.pkulaw.cn',
+        'Origin': 'https://www.pkulaw.cn',
+        'Referer': 'https://www.pkulaw.cn/Case/',
+        'sec-ch-ua': '"Google Chrome 79"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+
+    headers2 = {
+        'Accept': '*/*',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+        'Connection': 'keep-alive',
+        'Content-Length': '112',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Cookie': 'ASP.NET_SessionId=gwqimjpsnpemccguu4ns3d0d; CookieId=gwqimjpsnpemccguu4ns3d0d; QINGCLOUDELB=0c115dd3e70db1dd010b1763523580a8eb34b25dd41eaed32dbb495bb1e757e5',
+        'DNT': '1',
+        'Host': 'www.pkulaw.cn',
+        'Origin': 'https://www.pkulaw.cn',
+        'Referer': 'https://www.pkulaw.cn/Case/',
+        'sec-ch-ua': '"Google Chrome 79"',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
+    }
+
+    try:
+        response = requests.Session()
+        res = response.post(url = url1, data = data1, headers = headers1, timeout = 10)
+        cookies1 = res.cookies.get_dict()
+        cookieId = cookies1.get('CookieId')
+        print('CookieId: '+string(cookieId))
+        cookieID = cookieId
+        print('firstlogcookie: '+string(cookies1))
+        with open('./Cookies/firstlogCookie.txt', 'w', encoding = 'utf-8') as f:
+            for key, value in cookies1.items():
+                f.write(key+"="+string(value)+"; ")
+        f.close()
+        with open('./Cookies/firstlogCookie.txt', 'rb+') as f1:
+            f1.seek(-2, os.SEEK_END)
+            f1.truncate()
+        f1.close()
+    except Exception as e1:
+        print("Error1: "+string(e1))
+        pass
+
+    try:
+        with open('./Cookies/firstlogCookie.txt', 'r', encoding = 'utf-8') as f2:
+            cookies2 = f2.readline()
+            print("cookies2: "+string(cookies2))
+            print("headers2: "+string(headers2))
+            headers2.update(Cookie = cookies2)
+            print("headers2: " + string(headers2))
+            print("data2: "+string(data2))
+            data2.update(CookieId = cookieID)
+            print("data2: " + string(data2))
+        f2.close()
+        response1 = requests.Session()
+        res1 = response1.post(url = url1, data = data2, headers = headers2, timeout = 10)
+        return cookies2
+    except Exception as e2:
+        print("error2: "+string(e2))
+        pass
+
+
+
 singeldownload()
+# first_login_reqck()
