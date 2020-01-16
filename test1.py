@@ -14,94 +14,138 @@ from bs4 import BeautifulSoup
 # url="https://www.baidu.com"
 from soupsieve.util import string
 
-url = "https://www.pkulaw.com/case/search/RecordSearch"
-# url = "D:\BDFB-spider\Sample\案例与裁判文书_裁判文书_裁判文书公开_法院判决书_法院裁定书_司法审判书-北大法宝V6官网.html"
-# content = urlopen(url).read()
-# context = open(url, 'r', encoding = 'utf-8').read( )
-# content = string(BeautifulSoup(context, 'html.parser'))
-# content = urlopen("https://www.baidu.com").read()
-# context = ssl._create_unverified_context()
-# req = request.Request(url = "F:\BDFB-spider\Sample\案例与裁判文书_裁判文书_裁判文书公开_法院判决书_法院裁定书_司法审判书-北大法宝V6官网.html",)
-# res = request.urlopen(req,context=context)
-# content = res.read()
-# print(content)
+# url = "https://www.pkulaw.com/case/search/RecordSearch"
+# # url = "D:\BDFB-spider\Sample\案例与裁判文书_裁判文书_裁判文书公开_法院判决书_法院裁定书_司法审判书-北大法宝V6官网.html"
+# # content = urlopen(url).read()
+# # context = open(url, 'r', encoding = 'utf-8').read( )
+# # content = string(BeautifulSoup(context, 'html.parser'))
+# # content = urlopen("https://www.baidu.com").read()
+# # context = ssl._create_unverified_context()
+# # req = request.Request(url = "F:\BDFB-spider\Sample\案例与裁判文书_裁判文书_裁判文书公开_法院判决书_法院裁定书_司法审判书-北大法宝V6官网.html",)
+# # res = request.urlopen(req,context=context)
+# # content = res.read()
+# # print(content)
+#
+# # res_url = r"(?<=href=\").+?(?=\")|(?<=href=\').+?(?=\')"
+# # link = re.findall(res_url, content, re.I|re.S|re.M)
+# # for url in link:
+# #         print(url)
+# # req_url = '^a6bdb3332ec0adc4.*bdfb$'<a.*?href="(.*?)">.*?</a>
+# # results = re.findall('<input.*?checkbox.*?checkbox.*?value="(a.*?)"/>', content, re.S)
+# # print(results)
+# # print(len(results))
+# # for result in results:
+# #     print(result[1])
+#
+# headers = {
+#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+#                   'Chrome/79.0.3945.88 Safari/537.36',
+#     # 'User-Agent': ua.random,
+#     'Accept': '*/*',
+#     'Accept-Encoding': 'gzip,deflate,br',
+#     'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+#     'Connection': 'keep-alive',
+#     'Content-Length': '526',
+#     'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+#     'Host': 'www.pkulaw.com',
+#     # 'Sec-Fetch-Dest':'empty',
+#     'X-Requested-With':'XMLHttpRequest',
+#     # 'DNT': '1',
+#     'Origin': 'https://www.pkulaw.com',
+#     'Sec-Fetch-Site': 'same-origin',
+#     'Sec-Fetch-Mode': 'cors',
+#     'Referer': 'https://www.pkulaw.com/case/',
+#     'Cookie': 'redSpot=false; pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
+#     # 'Cookie': 'xClose=7; pkulaw_v6_sessionid=yfc1vmuj1kpsuo3njyjscjqy; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578296317,1578296340,1578296341,1578376289; xCloseNew=8; redSpot=false; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578383719'
+# }
+#
+# data = {
+#     #'Menu': 'case',
+#     # 'SearchKeywordType': 'DefaultSearch',
+#     # 'MatchType': 'Exact',
+#     # 'RangeType': 'Piece',
+#     # 'Library': 'pfn1',
+#     # 'ClassFlag': 'pfn1',
+#     # 'QueryOnClick': 'False',
+#     # 'AfterSearch': 'False',
+#     # 'IsSynonymSearch': 'true',
+#     # 'IsAdv': 'False',
+#     # 'ClassCodeKey': ',,,,,,,,',
+#     # 'GroupByIndex': '3',
+#     # 'OrderByIndex': '0',
+#     'ShowType': 'Default',
+#     # 'RecordShowType': 'List',
+#     'Pager.PageSize': '100',
+#     # 'isEng': 'chinese',
+#     'X-Requested-With': 'XMLHttpRequest',
+# }
 
-# res_url = r"(?<=href=\").+?(?=\")|(?<=href=\').+?(?=\')"
-# link = re.findall(res_url, content, re.I|re.S|re.M)
-# for url in link:
-#         print(url)
-# req_url = '^a6bdb3332ec0adc4.*bdfb$'<a.*?href="(.*?)">.*?</a>
-# results = re.findall('<input.*?checkbox.*?checkbox.*?value="(a.*?)"/>', content, re.S)
-# print(results)
-# print(len(results))
-# for result in results:
-#     print(result[1])
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/79.0.3945.88 Safari/537.36',
-    # 'User-Agent': ua.random,
-    'Accept': '*/*',
-    'Accept-Encoding': 'gzip,deflate,br',
-    'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-    'Connection': 'keep-alive',
-    'Content-Length': '526',
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'Host': 'www.pkulaw.com',
-    # 'Sec-Fetch-Dest':'empty',
-    'X-Requested-With':'XMLHttpRequest',
-    # 'DNT': '1',
-    'Origin': 'https://www.pkulaw.com',
-    'Sec-Fetch-Site': 'same-origin',
-    'Sec-Fetch-Mode': 'cors',
-    'Referer': 'https://www.pkulaw.com/case/',
-    'Cookie': 'redSpot=false; pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
-    # 'Cookie': 'xClose=7; pkulaw_v6_sessionid=yfc1vmuj1kpsuo3njyjscjqy; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578296317,1578296340,1578296341,1578376289; xCloseNew=8; redSpot=false; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578383719'
-}
+def req_page():
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/79.0.3945.88 Safari/537.36',
+        # 'User-Agent': ua.random,
+        # 'Accept': '*/*',
+        # 'Accept-Encoding': 'gzip,deflate,br',
+        # 'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+        # 'Connection': 'keep-alive',
+        # 'Content-Length': '526',
+        # 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        # 'Host': 'www.pkulaw.com',
+        # 'Sec-Fetch-Dest':'empty',
+        # 'X-Requested-With':'XMLHttpRequest',
+        # 'DNT': '1',
+        # 'Origin': 'https://www.pkulaw.com',
+        # 'Sec-Fetch-Site': 'same-origin',
+        # 'Sec-Fetch-Mode': 'cors',
+        # 'Referer': 'https://www.pkulaw.com/case/',
+        # 'Cookie': 'redSpot=false; pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
+        # 'Cookie': 'xClose=7; pkulaw_v6_sessionid=yfc1vmuj1kpsuo3njyjscjqy; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578296317,1578296340,1578296341,1578376289; xCloseNew=8; redSpot=false; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578383719'
+    }
 
-data = {
-    #'Menu': 'case',
-    # 'SearchKeywordType': 'DefaultSearch',
-    # 'MatchType': 'Exact',
-    # 'RangeType': 'Piece',
-    # 'Library': 'pfn1',
-    # 'ClassFlag': 'pfn1',
-    # 'QueryOnClick': 'False',
-    # 'AfterSearch': 'False',
-    # 'IsSynonymSearch': 'true',
-    # 'IsAdv': 'False',
-    # 'ClassCodeKey': ',,,,,,,,',
-    # 'GroupByIndex': '3',
-    # 'OrderByIndex': '0',
-    'ShowType': 'Default',
-    # 'RecordShowType': 'List',
-    'Pager.PageSize': '100',
-    # 'isEng': 'chinese',
-    'X-Requested-With': 'XMLHttpRequest',
-}
+    data = {
+        'Menu': 'case',
+        # 'SearchKeywordType': 'DefaultSearch',
+        # 'MatchType': 'Exact',
+        # 'RangeType': 'Piece',
+        # 'Library': 'pfn1',
+        # 'ClassFlag': 'pfn1',
+        # 'QueryOnClick': 'False',
+        # 'AfterSearch': 'False',
+        # 'IsSynonymSearch': 'true',
+        # 'IsAdv': 'False',
+        # 'ClassCodeKey': ',,,,,,,,',
+        # 'GroupByIndex': '3',
+        # 'OrderByIndex': '0',
+        'ShowType': 'Default',
+        # 'RecordShowType': 'List',
+        'Pager.PageSize': '100',
+        # 'isEng': 'chinese',
+        # 'X-Requested-With': 'XMLHttpRequest',
+    }
 
-
-def post_spider(url,data,headers):
+    url = "https://www.pkulaw.com/case/search/RecordSearch"
     try:
         print("Requesting Pages...")
-        ses=requests.Session()
+        ses = requests.Session()
         res = ses.post(url = url, data = data, headers = headers, timeout = 10)
         encoding = chardet.detect(res.content)
         html = res.content.decode(encoding['encoding'],'ignore')
         print("return html....")
-        # print(html)
+        print(html)
         return html
     except Exception as e:
         print(e)
         pass
 
 
-def getgid(url,data,headers):
-    html = post_spider(url,data,headers)
-    content = string(BeautifulSoup(html,'html.parser'))
-    results = re.findall('<li.*?block.*?recordList.*?value="(a.*?)".*?>.*?</li>',content,re.S)
-    print(results)
-    print(len(results))
+# def getgid(url,data,headers):
+#     # html = post_spider(url,data,headers)
+#     content = string(BeautifulSoup(html,'html.parser'))
+#     results = re.findall('<li.*?block.*?recordList.*?value="(a.*?)".*?>.*?</li>',content,re.S)
+#     print(results)
+#     print(len(results))
 
 
 def singeldownload():
@@ -548,5 +592,6 @@ def first_login_reqck():
 
 
 
-singeldownload()
+# singeldownload()
 # first_login_reqck()
+req_page()
