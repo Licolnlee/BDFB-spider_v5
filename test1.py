@@ -1,4 +1,5 @@
 # coding = utf-8
+import ast
 import os
 import re
 import time
@@ -6,6 +7,7 @@ from urllib.parse import urlencode
 from urllib.request import urlretrieve, urlopen
 import chardet
 import requests
+from pyquery import PyQuery as pq
 from bs4 import BeautifulSoup
 # from fake_useragent import UserAgent
 
@@ -80,65 +82,64 @@ from soupsieve.util import string
 #     'X-Requested-With': 'XMLHttpRequest',
 # }
 
+headers1 = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                  'Chrome/79.0.3945.88 Safari/537.36',
+}
 
-def req_page():
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/79.0.3945.88 Safari/537.36',
-        # 'User-Agent': ua.random,
-        # 'Accept': '*/*',
-        # 'Accept-Encoding': 'gzip,deflate,br',
-        # 'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-        # 'Connection': 'keep-alive',
-        # 'Content-Length': '526',
-        # 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        # 'Host': 'www.pkulaw.com',
-        # 'Sec-Fetch-Dest':'empty',
-        # 'X-Requested-With':'XMLHttpRequest',
-        # 'DNT': '1',
-        # 'Origin': 'https://www.pkulaw.com',
-        # 'Sec-Fetch-Site': 'same-origin',
-        # 'Sec-Fetch-Mode': 'cors',
-        # 'Referer': 'https://www.pkulaw.com/case/',
-        # 'Cookie': 'redSpot=false; pkulaw_v6_sessionid=tbzw3vtjm4tyhttgotxl35t0; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578636966; xCloseNew=11'
-        # 'Cookie': 'xClose=7; pkulaw_v6_sessionid=yfc1vmuj1kpsuo3njyjscjqy; Hm_lvt_8266968662c086f34b2a3e2ae9014bf8=1578296317,1578296340,1578296341,1578376289; xCloseNew=8; redSpot=false; Hm_lpvt_8266968662c086f34b2a3e2ae9014bf8=1578383719'
-    }
+data1 = {
+    'SearchKeywordType': 'JournalId',
+    'ShowType': 'Default',
+    'Pager.PageSize': '100',
+    'Menu': 'case',
+    'Pager.PageIndex': '0',
+    'ClassCodeKey': ',,,,,001,,,',
+}
 
-    data = {
-        'Menu': 'case',
-        # 'SearchKeywordType': 'DefaultSearch',
-        # 'MatchType': 'Exact',
-        # 'RangeType': 'Piece',
-        # 'Library': 'pfn1',
-        # 'ClassFlag': 'pfn1',
-        # 'QueryOnClick': 'False',
-        # 'AfterSearch': 'False',
-        # 'IsSynonymSearch': 'true',
-        # 'IsAdv': 'False',
-        # 'ClassCodeKey': ',,,,,,,,',
-        # 'GroupByIndex': '3',
-        # 'OrderByIndex': '0',
-        'ShowType': 'Default',
-        # 'RecordShowType': 'List',
-        'Pager.PageSize': '100',
-        # 'isEng': 'chinese',
-        # 'X-Requested-With': 'XMLHttpRequest',
-    }
+url1 = 'https://www.pkulaw.com/case/search/RecordSearch'
+proxy_pool_url = 'http://127.0.0.1:5010/get'
 
-    url = "https://www.pkulaw.com/case/search/RecordSearch"
+
+def get_proxy():
+    try:
+        response = requests.get(proxy_pool_url)
+        if response.status_code == 200:
+            proxy_url_content = response.content
+            encoding = chardet.detect(proxy_url_content)
+            proxy_url_context = proxy_url_content.decode(encoding['encoding'], 'ignore')
+            proxy_url_context1 = eval(proxy_url_context)
+            proxy_url = proxy_url_context1.get('proxy')
+            print(proxy_url)
+            return proxy_url
+    except ConnectionError:
+        return None
+
+
+def req_page(url):
     try:
         print("Requesting Pages...")
-        ses = requests.Session()
-        res = ses.post(url = url, data = data, headers = headers, timeout = 10)
-        encoding = chardet.detect(res.content)
-        html = res.content.decode(encoding['encoding'],'ignore')
+        ses = requests.Session( )
+        res = ses.post(url = url)
+        # encoding = chardet.detect(res.content)
+        # html = res.content.decode(encoding['encoding'], 'ignore')
         print("return html....")
+        html = res.text
         print(html)
         return html
-    except Exception as e:
-        print(e)
-        pass
+    except ConnectionError:
+        return req_page(url)
 
+
+def parse_index(html):
+    doc = pq(html)
+    items = doc('.container .rightContent ul li .block input').items()
+    for item in items:
+        yield item.attr('value')
+
+# def req_index(page):
+#     data = data1
+#     req_pageindex = int(page)
+#     data.update(Pager.PageIndex = req_pageindex)
 
 # def getgid(url,data,headers):
 #     # html = post_spider(url,data,headers)
@@ -174,7 +175,7 @@ def singeldownload():
     }
     # url1 = 'https://www.pkulaw.com/Tool/CheckDownloadLimit'
     # url1 = 'https://v6downloadservice.pkulaw.com/full/downloadfile'
-    url1 = 'https://www.pkulaw.cn/case/FullText/DownloadFile?'+urlencode(data1)
+    url1 = 'https://www.pkulaw.cn/case/FullText/DownloadFile?' + urlencode(data1)
     try:
         # cookie_up = first_login_reqck()
         # time.sleep(5)
@@ -186,7 +187,7 @@ def singeldownload():
         #     print('headers4: '+string(headers4))
         # headers4.update(Cookie = string(cookie_up))
         print("Requesting Pages...")
-        print('headers4.getcookie: '+string(headers4.get('Cookie')))
+        print('headers4.getcookie: ' + string(headers4.get('Cookie')))
         # ses = requests.Session()
         res = requests.get(url = url1, headers = headers4, data = data1, stream = True)
         print(res.status_code)
@@ -196,15 +197,15 @@ def singeldownload():
                 for chunk in res.iter_content(chunk_size = 32):  # chunk_size #设置每次下载文件的大小
                     f4.write(chunk)  # 每一次循环存储一次下载下来的内容
             with open('./download/test3.txt', 'r', encoding = 'GBK') as f5:
-                lines = f5.readlines()
+                lines = f5.readlines( )
                 first_line = lines[0]
                 # print(first_line)
                 key = "尚未登录"
                 if key in first_line:
-                    print(first_line+"请先登录获取cookie")
+                    print(first_line + "请先登录获取cookie")
                 else:
                     print('您的账号已经登陆')
-            f5.close()
+            f5.close( )
             print("return html....")
         else:
             print("unable to download...")
@@ -239,7 +240,8 @@ def singeldownload():
     # except Exception as e:
     #     print(e)
     #     pass
-        # response = requests.post(url1,headers1)
+    # response = requests.post(url1,headers1)
+
 
 # getgid(url,data,headers)
 # post_spider(url,data,headers)
@@ -379,7 +381,6 @@ def req_cookies():
         'X-Requested-With': 'XMLHttpRequest'
     }
 
-
     headers3 = {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -425,63 +426,63 @@ def req_cookies():
 
     url1 = 'https://www.pkulaw.cn/Case'
     try:
-        req = requests.Session()
+        req = requests.Session( )
         response = req.get(url = url1, headers = headers1, timeout = 10)
-        cookie1 = response.cookies.get_dict()
-        print('cookie1 = '+string(cookie1))
+        cookie1 = response.cookies.get_dict( )
+        print('cookie1 = ' + string(cookie1))
         os.makedirs('./Cookies/', exist_ok = True)
         with open('./Cookies/get_QINGCLOUDLB.txt', 'w', encoding = 'utf-8') as f:
-            for key, value in cookie1.items():
+            for key, value in cookie1.items( ):
                 f.write(key + '=' + string(value))
-        f.close()
+        f.close( )
     except Exception as e:
-        print('error1: '+string(e))
+        print('error1: ' + string(e))
         pass
 
-    url2 = 'https://www.pkulaw.cn/case/CheckLogin/Login?'+urlencode(data1)
+    url2 = 'https://www.pkulaw.cn/case/CheckLogin/Login?' + urlencode(data1)
     with open('./Cookies/get_QINGCLOUDLB.txt', 'r', encoding = 'utf-8') as f1:
-        cookie2 = f1.readline()
-        print('headers2 = '+string(headers2))
-        print('cookie2 = '+string(cookie2))
+        cookie2 = f1.readline( )
+        print('headers2 = ' + string(headers2))
+        print('cookie2 = ' + string(cookie2))
         headers2.update(Cookie = string(cookie2))
-        print('headers2 = '+string(headers2))
-    f1.close()
+        print('headers2 = ' + string(headers2))
+    f1.close( )
     try:
         req = requests.Session( )
         response = req.get(url = url2, headers = headers2, timeout = 10)
-        cookie3 = response.cookies.get_dict()
+        cookie3 = response.cookies.get_dict( )
         cookie4 = {}
         cookie5 = cookie1
         cookie4.update(cookie3)
         cookie4.update(cookie5)
-        print('cookie3 = '+string(cookie3))
+        print('cookie3 = ' + string(cookie3))
         print('cookie4 = ' + string(cookie4))
         os.makedirs('./Cookies/', exist_ok = True)
         with open('./Cookies/req_Cookies.txt', 'w', encoding = 'utf-8') as f2:
-            for key, value in cookie4.items():
+            for key, value in cookie4.items( ):
                 f2.write(key + '=' + string(value) + '; ')
             f2.write('FWinCookie=1; User_User=phone2020011214400673851')
-        f2.close()
+        f2.close( )
     except Exception as e1:
-        print('error2: '+string(e1))
+        print('error2: ' + string(e1))
         pass
 
         url3 = "https://www.pkulaw.cn/case/CheckLogin/Login"
         with open('./Cookies/req_Cookies.txt', 'r', encoding = 'utf-8') as f4:
-            cookie4 = f2.readline()
-            print('headers3 = '+string(headers3))
-            print('cookie4 = '+string(cookie4))
+            cookie4 = f2.readline( )
+            print('headers3 = ' + string(headers3))
+            print('cookie4 = ' + string(cookie4))
             headers1.update(Cookie = string(cookie4))
-            print('headers3 = '+string(headers3))
-        f4.close()
+            print('headers3 = ' + string(headers3))
+        f4.close( )
         try:
             req = requests.Session( )
             requ = req.post(url = url3, headers = headers3, data = data2, timeout = 10, stream = True)
             cookie5 = requ.cookies.get_dict( )
-            print('requ.status_code: '+requ.status_code)
-            print('cookie5 = '+string(cookie5))
+            print('requ.status_code: ' + requ.status_code)
+            print('cookie5 = ' + string(cookie5))
         except Exception as e2:
-            print('error3: '+string(e2))
+            print('error3: ' + string(e2))
             pass
 
 
@@ -553,45 +554,54 @@ def first_login_reqck():
     }
 
     try:
-        response = requests.Session()
+        response = requests.Session( )
         res = response.post(url = url1, data = data1, headers = headers1, timeout = 10)
-        cookies1 = res.cookies.get_dict()
+        cookies1 = res.cookies.get_dict( )
         cookieId = cookies1.get('CookieId')
-        print('CookieId: '+string(cookieId))
+        print('CookieId: ' + string(cookieId))
         cookieID = cookieId
-        print('firstlogcookie: '+string(cookies1))
+        print('firstlogcookie: ' + string(cookies1))
         with open('./Cookies/firstlogCookie.txt', 'w', encoding = 'utf-8') as f:
-            for key, value in cookies1.items():
-                f.write(key+"="+string(value)+"; ")
-        f.close()
+            for key, value in cookies1.items( ):
+                f.write(key + "=" + string(value) + "; ")
+        f.close( )
         with open('./Cookies/firstlogCookie.txt', 'rb+') as f1:
             f1.seek(-2, os.SEEK_END)
-            f1.truncate()
-        f1.close()
+            f1.truncate( )
+        f1.close( )
     except Exception as e1:
-        print("Error1: "+string(e1))
+        print("Error1: " + string(e1))
         pass
 
     try:
         with open('./Cookies/firstlogCookie.txt', 'r', encoding = 'utf-8') as f2:
-            cookies2 = f2.readline()
-            print("cookies2: "+string(cookies2))
-            print("headers2: "+string(headers2))
+            cookies2 = f2.readline( )
+            print("cookies2: " + string(cookies2))
+            print("headers2: " + string(headers2))
             headers2.update(Cookie = cookies2)
             print("headers2: " + string(headers2))
-            print("data2: "+string(data2))
+            print("data2: " + string(data2))
             data2.update(CookieId = cookieID)
             print("data2: " + string(data2))
-        f2.close()
-        response1 = requests.Session()
+        f2.close( )
+        response1 = requests.Session( )
         res1 = response1.post(url = url1, data = data2, headers = headers2, timeout = 10)
         return cookies2
     except Exception as e2:
-        print("error2: "+string(e2))
+        print("error2: " + string(e2))
         pass
-
 
 
 # singeldownload()
 # first_login_reqck()
-req_page()
+
+
+# req_page(url1, data1, headers1)
+def main():
+    url2 = 'D:\BDFB-spider_v5\Sample\test4.html'
+    # html = req_page(url1)
+    gids = parse_index(string(url2))
+    for gid in gids:
+        print(gid)
+
+main()
