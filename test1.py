@@ -82,21 +82,7 @@ from soupsieve.util import string
 #     'X-Requested-With': 'XMLHttpRequest',
 # }
 
-headers1 = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/79.0.3945.88 Safari/537.36',
-}
 
-data1 = {
-    'SearchKeywordType': 'JournalId',
-    'ShowType': 'Default',
-    'Pager.PageSize': '100',
-    'Menu': 'case',
-    'Pager.PageIndex': '0',
-    'ClassCodeKey': ',,,,,001,,,',
-}
-
-url1 = 'https://www.pkulaw.com/case/search/RecordSearch'
 proxy_pool_url = 'http://127.0.0.1:5010/get'
 
 
@@ -115,26 +101,75 @@ def get_proxy():
         return None
 
 
-def req_page(url):
+def req_page():
+    headers1 = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/79.0.3945.88 Safari/537.36',
+    }
+
+    data1 = {
+        'SearchKeywordType': 'JournalId',
+        'ShowType': 'Default',
+        'Pager.PageSize': '100',
+        'Menu': 'case',
+        'Pager.PageIndex': '0',
+        'ClassCodeKey': ',,,,,001,,,',
+    }
+
+    url1 = 'https://www.pkulaw.com/case/search/RecordSearch'
+
     try:
         print("Requesting Pages...")
-        ses = requests.Session( )
-        res = ses.post(url = url)
-        # encoding = chardet.detect(res.content)
-        # html = res.content.decode(encoding['encoding'], 'ignore')
+        ses = requests.Session()
+        res = ses.post(url = url1,data = data1, headers = headers1, timeout = 10)
+        encoding = chardet.detect(res.content)
+        html = res.content.decode(encoding['encoding'], 'ignore')
         print("return html....")
-        html = res.text
-        print(html)
+        # print(html)
         return html
     except ConnectionError:
-        return req_page(url)
+        return req_page()
 
-
-def parse_index(html):
-    doc = pq(html)
-    items = doc('.container .rightContent ul li .block input').items()
-    for item in items:
-        yield item.attr('value')
+def parse_index():
+    html = req_page()
+    doc = string(BeautifulSoup(html, 'html.parser'))
+    results = re.findall('<li.*?block.*?list-title,*?sortNum.*?flink.*?/pfnl/.*?_blank.*?>"(.*?)".*?', doc, re.S)
+    print(results)
+    print(len(results))
+    # with open('./download/reqpage.html', 'w', encoding = 'utf-8') as f:
+    #     f.write(doc)
+    # f.close()
+    # # print(doc)
+    # # items = doc('.block .list-title h4 a')
+    # # context = string(items)
+    # with open('./download/reqpage.html', 'r', encoding = 'utf-8') as f1:
+    #     content = string(f1.readline())
+    #     names = re.findall('<li.*?block.*?sortNum.*?a.*?_blank.*?flink.*?/pfnl/.*?>"(.*?)"</a>', content, re.S)
+    #     print(names)
+    # f1.close()
+    # print(len(names))
+    # print(items)
+    # print(type(items))
+    # print(items)
+    # lis = items.find('input')
+    # values = yield items.attr('value')
+    # for item in items:
+    #     value = item.attr('value')
+    #     print(value)
+    # for item in items:
+    #     value = item.attr('value')
+    #     print(value)
+        # with open('./download/gidreq.txt', 'w', encoding = 'utf-8') as f:
+        #     f.write(value)
+    # f.close()
+    # print(items)
+    # print(values)
+    # print(type(lis))
+    # print(lis)
+    # print(doc('li .block input .recordList value'))
+    # items = doc('.container .rightContent ul li .block input').items()
+    # for item in items:
+    #     yield item.attr('value')
 
 # def req_index(page):
 #     data = data1
@@ -597,11 +632,11 @@ def first_login_reqck():
 
 
 # req_page(url1, data1, headers1)
-def main():
-    url2 = 'D:\BDFB-spider_v5\Sample\test4.html'
-    # html = req_page(url1)
-    gids = parse_index(string(url2))
-    for gid in gids:
-        print(gid)
+# def main():
+#     url2 = 'D:\BDFB-spider_v5\Sample\test4.html'
+#     # html = req_page(url1)
+#     gids = parse_index(string(url2))
+#     for gid in gids:
+#         print(gid)
 
-main()
+parse_index()
