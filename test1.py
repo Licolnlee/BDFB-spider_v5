@@ -8,11 +8,17 @@ from urllib.request import urlretrieve, urlopen
 import chardet
 import requests
 from pyquery import PyQuery as pq
+from redis import StrictRedis
 from bs4 import BeautifulSoup
 # from fake_useragent import UserAgent
+import redis
 
+r = redis.Redis(host = 'localhost', port = 6379, password = '', db = 1)
+
+pool = redis.ConnectionPool()
+r_pool = redis.Redis(connection_pool = pool)
 # ua = UserAgent( )
-
+# redis = StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 # url="https://www.baidu.com"
 from soupsieve.util import string
 
@@ -130,12 +136,31 @@ def req_page():
     except ConnectionError:
         return req_page()
 
+
 def parse_index():
     html = req_page()
-    doc = string(BeautifulSoup(html, 'html.parser'))
-    results = re.findall('<li.*?block.*?list-title,*?sortNum.*?flink.*?/pfnl/.*?_blank.*?>"(.*?)".*?', doc, re.S)
-    print(results)
-    print(len(results))
+    doc = pq(html)
+    items = doc('.block').items()
+    i = 0
+    for item in items:
+        gid = item('input').attr('value')
+        name = item('h4 a').text()
+        # related_info = item('.related-info').text()
+        r_pool.hset('crawldata', name, gid)
+        print(name)
+        print(gid)
+        # print(related_info)
+        i += 1
+    print(i)
+
+    # items = doc('.block .list-title h4 a').items()
+    # for item in items:
+    #     name = item.text()
+    #     print(name)
+    # doc = string(BeautifulSoup(html, 'html.parser'))
+    # results = re.findall('<li.*?block.*?list-title,*?sortNum.*?flink.*?/pfnl/.*?_blank.*?>"(.*?)".*?', doc, re.S)
+    # print(results)
+    # print(len(results))
     # with open('./download/reqpage.html', 'w', encoding = 'utf-8') as f:
     #     f.write(doc)
     # f.close()
