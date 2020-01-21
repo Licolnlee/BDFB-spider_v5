@@ -683,7 +683,7 @@ def download_data():
     names = r_pool.hkeys('downloadreqdata')
     for i in range(len(names)):
         names_list = {i: names[i].decode()}
-        gid = r_pool.hget('downloadreqdata',names_list[i]).decode()
+        gid = r_pool.hget('downloadreqdata', names_list[i]).decode()
         singeldownload(cookie = cookie, name = names_list[i], gid = gid)
         print(names_list[i])
         print(gid)
