@@ -12,11 +12,13 @@ from redis import StrictRedis
 from bs4 import BeautifulSoup
 # from fake_useragent import UserAgent
 import redis
+import json
 
-r = redis.Redis(host = 'localhost', port = 6379, password = '', db = 1)
+r = redis.StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 
 pool = redis.ConnectionPool()
 r_pool = redis.Redis(connection_pool = pool)
+r_pipe = r_pool.pipeline()
 # ua = UserAgent( )
 # redis = StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 # url="https://www.baidu.com"
@@ -89,6 +91,27 @@ from soupsieve.util import string
 # }
 
 
+# class gid_data:
+#
+#     def __init__(self, name, gid, issue_type, court_name, issue_num, issue_date):
+#         self.name = name
+#         self.gid = gid
+#         self.issue_type = issue_type
+#         self.court_name = court_name
+#         self.issue_num = issue_num
+#         self.issue_date = issue_date
+
+    # def set_attr(self, name, gid, issue_type, court_name, issue_num, issue_date):
+    #     self.name = name
+    #     self.gid = gid
+    #     self.issue_type = issue_type
+    #     self.court_name = court_name
+    #     self.issue_num = issue_num
+    #     self.issue_date = issue_date
+
+
+
+
 proxy_pool_url = 'http://127.0.0.1:5010/get'
 
 
@@ -126,30 +149,44 @@ def req_page():
 
     try:
         print("Requesting Pages...")
-        ses = requests.Session()
-        res = ses.post(url = url1,data = data1, headers = headers1, timeout = 10)
+        ses = requests.Session( )
+        res = ses.post(url = url1, data = data1, headers = headers1, timeout = 10)
         encoding = chardet.detect(res.content)
         html = res.content.decode(encoding['encoding'], 'ignore')
         print("return html....")
         # print(html)
         return html
     except ConnectionError:
-        return req_page()
+        return req_page( )
 
 
 def parse_index():
-    html = req_page()
+    html = req_page( )
     doc = pq(html)
-    items = doc('.block').items()
+    items = doc('.block').items( )
     i = 0
     for item in items:
         gid = item('input').attr('value')
         name = item('h4 a').text()
-        # related_info = item('.related-info').text()
-        r_pool.hset('crawldata', name, gid)
-        print(name)
-        print(gid)
+        related_info = item('.related-info').text()
+        issue_type = related_info.split(' / ')[0]
+        court_name = related_info.split(' / ')[1]
+        issue_num = related_info.split(' / ')[2]
+        issue_date = related_info.split(' / ')[-1]
+        dg = dict(gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num, issue_date = issue_date)
+        en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('utf-8')
+        r_pipe.hset('crawldata', name, en_json_dg)
+        r_pipe.execute()
+        # print(name)
+        # print(gid)
         # print(related_info)
+        # print(issue_type)
+        # print(court_name)
+        # print(issue_num)
+        # print(issue_date)
+        # gids = gid_data(name = name, gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num, issue_date = issue_date)
+        # r_pool.
+        # gid_data.set_attr(name = name, gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num, issue_date = issue_date)
         i += 1
     print(i)
 
@@ -184,8 +221,8 @@ def parse_index():
     # for item in items:
     #     value = item.attr('value')
     #     print(value)
-        # with open('./download/gidreq.txt', 'w', encoding = 'utf-8') as f:
-        #     f.write(value)
+    # with open('./download/gidreq.txt', 'w', encoding = 'utf-8') as f:
+    #     f.write(value)
     # f.close()
     # print(items)
     # print(values)
@@ -195,6 +232,7 @@ def parse_index():
     # items = doc('.container .rightContent ul li .block input').items()
     # for item in items:
     #     yield item.attr('value')
+
 
 # def req_index(page):
 #     data = data1
@@ -664,4 +702,4 @@ def first_login_reqck():
 #     for gid in gids:
 #         print(gid)
 
-parse_index()
+parse_index( )
