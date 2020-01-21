@@ -13,16 +13,16 @@ from bs4 import BeautifulSoup
 # from fake_useragent import UserAgent
 import redis
 import json
+from soupsieve.util import string
 
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 
-pool = redis.ConnectionPool()
+pool = redis.ConnectionPool( )
 r_pool = redis.Redis(connection_pool = pool)
-r_pipe = r_pool.pipeline()
+r_pipe = r_pool.pipeline( )
 # ua = UserAgent( )
 # redis = StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 # url="https://www.baidu.com"
-from soupsieve.util import string
 
 # url = "https://www.pkulaw.com/case/search/RecordSearch"
 # # url = "D:\BDFB-spider\Sample\案例与裁判文书_裁判文书_裁判文书公开_法院判决书_法院裁定书_司法审判书-北大法宝V6官网.html"
@@ -101,15 +101,13 @@ from soupsieve.util import string
 #         self.issue_num = issue_num
 #         self.issue_date = issue_date
 
-    # def set_attr(self, name, gid, issue_type, court_name, issue_num, issue_date):
-    #     self.name = name
-    #     self.gid = gid
-    #     self.issue_type = issue_type
-    #     self.court_name = court_name
-    #     self.issue_num = issue_num
-    #     self.issue_date = issue_date
-
-
+# def set_attr(self, name, gid, issue_type, court_name, issue_num, issue_date):
+#     self.name = name
+#     self.gid = gid
+#     self.issue_type = issue_type
+#     self.court_name = court_name
+#     self.issue_num = issue_num
+#     self.issue_date = issue_date
 
 
 proxy_pool_url = 'http://127.0.0.1:5010/get'
@@ -130,7 +128,7 @@ def get_proxy():
         return None
 
 
-def req_page():
+def req_page(page):
     headers1 = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/79.0.3945.88 Safari/537.36',
@@ -141,7 +139,7 @@ def req_page():
         'ShowType': 'Default',
         'Pager.PageSize': '100',
         'Menu': 'case',
-        'Pager.PageIndex': '0',
+        'Pager.PageIndex': page,
         'ClassCodeKey': ',,,,,001,,,',
     }
 
@@ -157,26 +155,26 @@ def req_page():
         # print(html)
         return html
     except ConnectionError:
-        return req_page( )
+        return req_page(page)
 
 
-def parse_index():
-    html = req_page( )
+def parse_index(html):
     doc = pq(html)
     items = doc('.block').items( )
     i = 0
     for item in items:
         gid = item('input').attr('value')
-        name = item('h4 a').text()
-        related_info = item('.related-info').text()
+        name = item('h4 a').text( )
+        related_info = item('.related-info').text( )
         issue_type = related_info.split(' / ')[0]
         court_name = related_info.split(' / ')[1]
         issue_num = related_info.split(' / ')[2]
         issue_date = related_info.split(' / ')[-1]
-        dg = dict(gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num, issue_date = issue_date)
+        dg = dict(gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num,
+                  issue_date = issue_date)
         en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('utf-8')
         r_pipe.hset('crawldata', name, en_json_dg)
-        r_pipe.execute()
+        r_pipe.execute( )
         # print(name)
         # print(gid)
         # print(related_info)
@@ -232,8 +230,6 @@ def parse_index():
     # items = doc('.container .rightContent ul li .block input').items()
     # for item in items:
     #     yield item.attr('value')
-
-
 # def req_index(page):
 #     data = data1
 #     req_pageindex = int(page)
@@ -245,6 +241,106 @@ def parse_index():
 #     results = re.findall('<li.*?block.*?recordList.*?value="(a.*?)".*?>.*?</li>',content,re.S)
 #     print(results)
 #     print(len(results))
+# getgid(url,data,headers)
+# # post_spider(url,data,headers)
+# # r = requests.post(url,data = data, headers = headers, timeout = 10)
+# # print(r.status_code)
+# # r= requests.post(url,headers,timeout=10)
+# # print(r.status_code)
+# # singeldownload()
+#
+# # def reqcookie():
+# #     url3 = "https://www.pkulaw.cn/Case/"
+# #     url2 = "https://www.pkulaw.cn/case/CheckLogin/Login"
+# #     data2 = {
+# #         'Usrlogtype': '1',
+# #         'ExitLogin': '',
+# #         'menu': 'case',
+# #         'CookieId': '' ,
+# #         'UserName': '16530569067',
+# #         'PassWord': '16530569067',
+# #         'jz_id': '0',
+# #         'jz_pwd': '0',
+# #         'auto_log': '0',
+# #     }
+# #     headers2 = {
+# #         'Host': 'www.pkulaw.cn',
+# #         'Connection': 'keep-alive',
+# #         'Content-Length': '113',
+# #         'Origin': 'https: // www.pkulaw.cn',
+# #         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
+# #         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+# #         'Accept': '*/*',
+# #         'X-Requested-With': 'XMLHttpRequest',
+# #         'Referer': 'https://www.pkulaw.cn/Case/',
+# #         'Accept-Encoding': 'gzip, deflate, br',
+# #         'CheckIPDate': time.strftime('%y%y-%m-%d %H:%M:%S',time.localtime()),
+# #         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
+# #     }
+# #
+# #     headers3 = {
+# #         'Accept': '*/*',
+# #         'Accept-Encoding': 'gzip, deflate, br',
+# #         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
+# #         'Connection': 'keep-alive',
+# #         'Content-Length': '113',
+# #         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+# #         'Cookie': 'ASP.NET_SessionId=0psusmtincxmotx0qa5bfjj4; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=0psusmtincxmotx0qa5bfjj4; CheckIPAuto=; CheckIPDate=2020-01-15 14:29:59',
+# #         'DNT': '1',
+# #         'Host': 'www.pkulaw.cn',
+# #         'Origin': 'https://www.pkulaw.cn',
+# #         'Referer': 'https://www.pkulaw.cn/Case/',
+# #         'sec-ch-ua': '"Google Chrome 79"',
+# #         'Sec-Fetch-Dest': 'empty',
+# #         'Sec-Fetch-Mode': 'cors',
+# #         'Sec-Fetch-Site': 'same-origin',
+# #         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
+# #         'X-Requested-With': 'XMLHttpRequest',
+# #     }
+# #
+# #     # response = requests.Session()
+# #     # res = response.post(url = url2, headers = headers2, data = data2, timeout = 10,stream = True)
+# #     # print(res.status_code)
+# #     # cookie = res.cookies.get_dict()
+# #     # t = res.request.headers.get('CheckIPDate')
+# #     # # print(t)
+# #     # # print(cookie)
+# #     # # print(cookie.get('CookieId'))
+# #     # os.makedirs('./Cookies/',exist_ok = True)
+# #     # with open('./Cookies/req_Cookies.txt','w',encoding = 'utf-8') as f:
+# #     #     for key,value in cookie.items():
+# #     #         f.write(key+'='+string(value)+'; ')
+# #     #     f.write('CheckIPAuto=; ')
+# #     #     f.write('CheckIPDate='+t)
+# #         # f.write('User_User=phone2020011214400673851')
+# #         # 'Cookie': 'ASP.NET_SessionId=tigxfhukj3h1p5empnlhbvyb; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CookieId=tigxfhukj3h1p5empnlhbvyb; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1'
+# #         # # 'Cookie': 'pkulaw_v6_sess
+# #     # f.close()
+# #
+# #     time.sleep(5)
+# #     with open('./Cookies/req_Cookies.txt', 'r', encoding = 'utf-8') as f1:
+# #         cookie6 = f1.readline()
+# #         print('he'headers3)
+# #         print(cookie1)
+# #         headers3.update(Cookie = string(cookie1))
+# #         print(headers3)
+# #         req = requests.Session()
+# #         requ = req.post(url = url2, headers = headers3, data = data2, timeout = 10, stream = True)
+# #         cookie2 = requ.cookies.get_dict()
+# #         print(cookie2)
+# #         os.makedirs('./Cookies/', exist_ok = True)
+# #         with open('./Cookies/Check_expire_date.txt', 'w', encoding = 'utf-8') as f:
+# #             for key, value in cookie2.items( ):
+# #                 f.write(key + '=' + string(value) + '; ')
+# #         f.close()
+# #         print(requ.status_code)
+#
+#
+# # def test_time():
+# #     local_t = time.strftime('%y%y-%m-%d %H:%M:%S',time.localtime())
+# #     print(local_t)
+
+
 
 
 def singeldownload():
@@ -341,104 +437,6 @@ def singeldownload():
     # response = requests.post(url1,headers1)
 
 
-# getgid(url,data,headers)
-# post_spider(url,data,headers)
-# r = requests.post(url,data = data, headers = headers, timeout = 10)
-# print(r.status_code)
-# r= requests.post(url,headers,timeout=10)
-# print(r.status_code)
-# singeldownload()
-
-# def reqcookie():
-#     url3 = "https://www.pkulaw.cn/Case/"
-#     url2 = "https://www.pkulaw.cn/case/CheckLogin/Login"
-#     data2 = {
-#         'Usrlogtype': '1',
-#         'ExitLogin': '',
-#         'menu': 'case',
-#         'CookieId': '' ,
-#         'UserName': '16530569067',
-#         'PassWord': '16530569067',
-#         'jz_id': '0',
-#         'jz_pwd': '0',
-#         'auto_log': '0',
-#     }
-#     headers2 = {
-#         'Host': 'www.pkulaw.cn',
-#         'Connection': 'keep-alive',
-#         'Content-Length': '113',
-#         'Origin': 'https: // www.pkulaw.cn',
-#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36',
-#         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-#         'Accept': '*/*',
-#         'X-Requested-With': 'XMLHttpRequest',
-#         'Referer': 'https://www.pkulaw.cn/Case/',
-#         'Accept-Encoding': 'gzip, deflate, br',
-#         'CheckIPDate': time.strftime('%y%y-%m-%d %H:%M:%S',time.localtime()),
-#         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
-#     }
-#
-#     headers3 = {
-#         'Accept': '*/*',
-#         'Accept-Encoding': 'gzip, deflate, br',
-#         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
-#         'Connection': 'keep-alive',
-#         'Content-Length': '113',
-#         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-#         'Cookie': 'ASP.NET_SessionId=0psusmtincxmotx0qa5bfjj4; QINGCLOUDELB=59f1d6de987b0d2fd4ddf2274d09ac70921c45dcd3b30550838de7d33d1e4651; CookieId=0psusmtincxmotx0qa5bfjj4; CheckIPAuto=; CheckIPDate=2020-01-15 14:29:59',
-#         'DNT': '1',
-#         'Host': 'www.pkulaw.cn',
-#         'Origin': 'https://www.pkulaw.cn',
-#         'Referer': 'https://www.pkulaw.cn/Case/',
-#         'sec-ch-ua': '"Google Chrome 79"',
-#         'Sec-Fetch-Dest': 'empty',
-#         'Sec-Fetch-Mode': 'cors',
-#         'Sec-Fetch-Site': 'same-origin',
-#         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36',
-#         'X-Requested-With': 'XMLHttpRequest',
-#     }
-#
-#     # response = requests.Session()
-#     # res = response.post(url = url2, headers = headers2, data = data2, timeout = 10,stream = True)
-#     # print(res.status_code)
-#     # cookie = res.cookies.get_dict()
-#     # t = res.request.headers.get('CheckIPDate')
-#     # # print(t)
-#     # # print(cookie)
-#     # # print(cookie.get('CookieId'))
-#     # os.makedirs('./Cookies/',exist_ok = True)
-#     # with open('./Cookies/req_Cookies.txt','w',encoding = 'utf-8') as f:
-#     #     for key,value in cookie.items():
-#     #         f.write(key+'='+string(value)+'; ')
-#     #     f.write('CheckIPAuto=; ')
-#     #     f.write('CheckIPDate='+t)
-#         # f.write('User_User=phone2020011214400673851')
-#         # 'Cookie': 'ASP.NET_SessionId=tigxfhukj3h1p5empnlhbvyb; QINGCLOUDELB=b1262d52db822794d00c3069ee5bd621ec61ed2f1b6f7d61f04556fafeaf0c45; CookieId=tigxfhukj3h1p5empnlhbvyb; CheckIPAuto=; CheckIPDate=2020-01-10 20:38:30; User_User=phone2020010610184515819; FWinCookie=1'
-#         # # 'Cookie': 'pkulaw_v6_sess
-#     # f.close()
-#
-#     time.sleep(5)
-#     with open('./Cookies/req_Cookies.txt', 'r', encoding = 'utf-8') as f1:
-#         cookie6 = f1.readline()
-#         print('he'headers3)
-#         print(cookie1)
-#         headers3.update(Cookie = string(cookie1))
-#         print(headers3)
-#         req = requests.Session()
-#         requ = req.post(url = url2, headers = headers3, data = data2, timeout = 10, stream = True)
-#         cookie2 = requ.cookies.get_dict()
-#         print(cookie2)
-#         os.makedirs('./Cookies/', exist_ok = True)
-#         with open('./Cookies/Check_expire_date.txt', 'w', encoding = 'utf-8') as f:
-#             for key, value in cookie2.items( ):
-#                 f.write(key + '=' + string(value) + '; ')
-#         f.close()
-#         print(requ.status_code)
-
-
-# def test_time():
-#     local_t = time.strftime('%y%y-%m-%d %H:%M:%S',time.localtime())
-#     print(local_t)
 
 
 def req_cookies():
@@ -702,4 +700,13 @@ def first_login_reqck():
 #     for gid in gids:
 #         print(gid)
 
-parse_index( )
+
+def main():
+    for page in range(0, 2):
+        html = req_page(page)
+        if html:
+            parse_index(html = html)
+
+
+if __name__ == '__main__':
+    main( )
