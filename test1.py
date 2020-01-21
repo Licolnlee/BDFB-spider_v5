@@ -175,6 +175,7 @@ def parse_index(html):
                   issue_date = issue_date)
         en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('UTF-8')
         r_pipe.hset('crawldata', name, en_json_dg)
+        r_pipe.hset('downloadreqdata', name, gid)
         r_pipe.execute()
         # print(name)
         # print(gid)
@@ -483,13 +484,13 @@ def parse_index(html):
 #             pass
 
 
-def singeldownload(gid):
+def singeldownload(cookie, name, gid):
     headers4 = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
         'Connection': 'keep-alive',
-        'Cookie': 'CookieId=q5mn0zsjmj2zgeucpikjpvzi; ASP.NET_SessionId=q5mn0zsjmj2zgeucpikjpvzi; QINGCLOUDELB=a290af14cd98968af8ae55dd4f216a9be13319b57ab5f3b439cc153975d86b02',
+        'Cookie': cookie,
         'Host': 'www.pkulaw.cn',
         'Referer': 'https://www.pkulaw.cn/case/pfnl_a6bdb3332ec0adc4bf6da0b52d04589a8445f45b7079568dbdfb.html?match=Exact',
         # 'sec-ch-ua': 'Google Chrome 79',
@@ -516,18 +517,18 @@ def singeldownload(gid):
         res = ses.get(url = url1, headers = headers4, data = data1, stream = True)
         print(res.status_code)
         if res.status_code == 200:
-            with open('./download/test3.txt', 'wb') as f4:
+            with open('./download/'+name+'.txt', 'wb') as f4:
                 for chunk in res.iter_content(chunk_size = 32):  # chunk_size #设置每次下载文件的大小
                     f4.write(chunk)  # 每一次循环存储一次下载下来的内容
-            with open('./download/test3.txt', 'r', encoding = 'GBK') as f5:
-                lines = f5.readlines( )
+            with open('./download/'+name+'.txt', 'r', encoding = 'GBK') as f5:
+                lines = f5.readlines()
                 first_line = lines[0]
                 key = "尚未登录"
                 if key in first_line:
                     print(first_line + "请先登录获取cookie")
                 else:
                     print('您的账号已经登陆')
-            f5.close( )
+            f5.close()
             print("return html....")
         else:
             print("unable to download...")
@@ -573,8 +574,8 @@ def first_login_reqck():
         'ExitLogin': '',
         'menu': 'case',
         'CookieId': '',
-        'UserName': '16566408577',
-        'PassWord': '16566408577',
+        'UserName': '15045729324',
+        'PassWord': '15045729324',
         'jz_id': '0',
         'jz_pwd': '0',
         'auto_log': '0'
@@ -678,40 +679,16 @@ def crawl_data():
 
 
 def download_data():
-    # num = r_pipe.hlen('crawldata')
-    names = r_pool.hkeys('crawldata')
-    attrs = r_pool.hgetall('crawldata')
-    print(attrs)
-    # results = r_pipe.execute()
-    # name_list = string(results[0]).split(',')
-    # name_list = bytes(name_list)
-    # ss = bytes(name)
-    # print(name)
-    # print(type(name))
-    # print(ss)
-    # print(type(ss))
-    # s = b'\xe5\x8c\x97\xe4\xba\xac\xe9\xb9\x8f\xe5\xbf\x97\xe7\x89\xa9\xe4\xb8\x9a\xe7\xae\xa1\xe7\x90\x86\xe6\x9c\x89\xe9\x99\x90\xe8\xb4\xa3\xe4\xbb\xbb\xe5\x85\xac\xe5\x8f\xb8\xe8\xaf\x89\xe8\x8c\x83\xe7\xad\x91\xe7\x94\xb0\xe7\x89\xa9\xe4\xb8\x9a\xe6\x9c\x8d\xe5\x8a\xa1\xe5\x90\x88\xe5\x90\x8c\xe7\xba\xa0\xe7\xba\xb7\xe6\xa1\x88 '
-    # print(s.decode())
-    # print(s)
-    # print(type(s))
-    # print(results[0])
-    # print(string(results[0]).split(','))
-    # print(str(results[0]).split(','))
-    # print(len(string(results[0]).split(',')))
-    # print(len(str(results[0]).split(',')))
+    cookie = first_login_reqck()
+    names = r_pool.hkeys('downloadreqdata')
     for i in range(len(names)):
         names_list = {i: names[i].decode()}
+        gid = r_pool.hget('downloadreqdata',names_list[i]).decode()
+        singeldownload(cookie = cookie, name = names_list[i], gid = gid)
         print(names_list[i])
+        print(gid)
         i += 1
-    # name_str = string(results)
-    # name_str = ",\n".join('%s' %id for id in results)
-    # name_bytes = bytes(name_str, encoding = 'utf-8')
-    # for i in range(len(name_str)):
-    #     name_list = {i: name_str[i].decode()}
-    # encoding = chardet.detect(name_bytes.)
-    # # name_list = name_bytes.decode(encoding['encoding'], 'ignore')
-    #     print(name_list)
-    # print(names)
+        time.sleep(5)
 
 
 if __name__ == '__main__':
