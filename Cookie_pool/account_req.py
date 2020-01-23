@@ -1,5 +1,9 @@
 import json
 import os
+import random
+import queue
+import threading
+import time
 from urllib.parse import urlencode
 from account_saver import RedisClient
 from cssselect import xpath
@@ -12,6 +16,7 @@ import redis
 import re
 import bs4
 from soupsieve.util import string
+import schedule
 
 USERNAME = 'kouzui98'
 USERPASSWORD = 'Windows10'
@@ -19,6 +24,7 @@ REQ_ID = '659'
 REQ_TITLE = '法律数据库'
 BASE_URL = 'http://520myfuture.com/db/goEntrance?'
 CONN = RedisClient('account', 'pkulaw')
+CONN1 = RedisClient('url_list', 'myfuture')
 
 HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -61,10 +67,12 @@ def dict_format(filepath, dict_1):
         f1.close( )
     except FileNotFoundError:
         print('file not exist')
-        with open(filepath, 'w', encoding = 'utf-8') as f1:
-            for key, value in dict_1.items( ):
-                f1.write(key + "=" + string(value) + "; ")
-        f1.close( )
+        os.mkdir(filepath)
+        dict_format(filepath, dict_1)
+        # with open(filepath, 'w', encoding = 'utf-8') as f1:
+        #     for key, value in dict_1.items( ):
+        #         f1.write(key + "=" + string(value) + "; ")
+        # f1.close( )
     pass
 
 
@@ -76,10 +84,12 @@ def txt_reformat(filepath):
         f2.close( )
     except FileNotFoundError:
         print('file not exist')
-        with open(filepath, 'rb+') as f2:
-            f2.seek(-2, os.SEEK_END)
-            f2.truncate( )
-        f2.close( )
+        os.mkdir(filepath)
+        txt_reformat(filepath)
+        # with open(filepath, 'rb+') as f2:
+        #     f2.seek(-2, os.SEEK_END)
+        #     f2.truncate( )
+        # f2.close( )
     pass
 
 
@@ -93,11 +103,13 @@ def read_txt_header_update(filepath, headers):
         return headers
     except FileNotFoundError:
         print('file not exist')
-        with open(filepath, 'r', encoding = 'utf-8') as f3:
-            cookies = f3.readline( )
-            print(cookies)
-            headers.update(Cookie = cookies)
-        f3.close( )
+        os.mkdir(filepath)
+        read_txt_header_update(filepath, headers)
+        # with open(filepath, 'r', encoding = 'utf-8') as f3:
+        #     cookies = f3.readline( )
+        #     print(cookies)
+        #     headers.update(Cookie = cookies)
+        # f3.close( )
         return None
     pass
 
@@ -111,19 +123,30 @@ def headers_json(filepath, headers):
         return None
     except FileNotFoundError:
         print('file not exist')
-        with open(filepath, 'w', encoding = 'utf-8') as f4:
-            js = json.dumps(headers)
-            f4.write(js)
-        f4.close( )
+        os.mkdir(filepath)
+        headers_json(filepath, headers)
+        # with open(filepath, 'w', encoding = 'utf-8') as f4:
+        #     js = json.dumps(headers)
+        #     f4.write(js)
+        # f4.close( )
         return None
     pass
 
 
 def test_req():
-    res = requests.get('http://www.mcnki.com/BDFB3/FBGW1.html', D_HEADERS)
-    content = decode_content(res.content)
-    print(content)
-    return content
+    try:
+        url = req_random_url()
+        res = requests.get(url)
+        if res.status_code == 200:
+            content = decode_content(res.content)
+            parse_content(content)
+        elif res.status_code == 404:
+            print(404)
+            test_req()
+            return None
+    except Exception as e:
+        print(e)
+        pass
 
 
 def decode_content(html):
@@ -139,9 +162,8 @@ def parse_index(content):
     return url
 
 
-def parse_content():
+def parse_content(content):
     global context
-    content = test_req()
     # dom_tree = etree.HTML(content)
     # num2 = dom_tree.xpath('//div/p[3]/strong')
     # for i in num2:
@@ -173,6 +195,40 @@ def req_content(url):
             return None
     except ConnectionError:
         pass
+
+
+def parse_js(content):
+    # with open(content,'r', encoding = 'utf-8') as f:
+    #     doc = string(f.readlines())
+    # print(doc)
+    # info = json.loads(doc)
+    # print(info)
+    # url = info['dogo']['urls']
+    doc = pq(filename = content, parser = 'html')
+    items = doc('body script').text()
+    urls = re.findall('urls.*?=.*?"(.*?)";', items, re.S)
+    for i in range(len(urls)):
+        CONN1.set('url['+str(i)+']', urls[i])
+    url = random.choice(urls)
+    print(url)
+    return url
+
+
+def req_random_url():
+    global url
+    count = CONN1.count()
+    i = random.randrange(count)
+    url = CONN1.get('url['+str(i)+']')
+    print(url)
+    return url
+    # try:
+    #     request = requests.Session()
+    #     response = request.get(url)
+    #     if response.status_code == 200:
+    #         html = decode_content(response.content)
+    #         print(html)
+    #         return html
+    #     else:
 
 
 class MyFutureConnector(object):
@@ -226,10 +282,7 @@ class MyFutureConnector(object):
                 content = decode_content(html)
                 d_url = parse_index(content)
                 context = req_content(d_url)
-
-                # print(content)
-                # print(html)
-                # print(context)
+                parse_js(context)
                 return context
             else:
                 headers = self.login( )
@@ -299,8 +352,13 @@ class MyFutureConnector(object):
             pass
 
 
-def run():
-    parse_content()
+def job():
+    for i in range(50):
+        test_req()
+    # req_random_url()
+    # url = 'F:\BDFB-spider_v5\Cookie_pool\\test.html'
+    # parse_js(url)
+    # # parse_content()
     # mc = MyFutureConnector( )
     # # mc.req_account()
     # try:
@@ -313,8 +371,29 @@ def run():
     #     print('file not exist')
     #     mc.req_account(HEADERS)
 
+def run():
+    while 1:
+        job_func = jobqueue.get()
+        job_func()
+
+jobqueue = queue.Queue()
+
+schedule.every(10).seconds.do(jobqueue.put, job)
+schedule.every(10).seconds.do(jobqueue.put, job)
+schedule.every(10).seconds.do(jobqueue.put, job)
+schedule.every(10).seconds.do(jobqueue.put, job)
+schedule.every(10).seconds.do(jobqueue.put, job)
+schedule.every(10).seconds.do(jobqueue.put, job)
+
+
+work_thread = threading.Thread(target = run)
+work_thread.start()
+
+while 1:
+    schedule.run_pending()
+    time.sleep(1)
 
 #
 # # run( )
 # # test_req()
-run( )
+
