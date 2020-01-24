@@ -35,3 +35,6 @@ class RedisClient(object):
 
     def all(self):
         return self.db.hgetall(self.name())
+
+    def scan(self):
+        return self.db.keys(self.name())
