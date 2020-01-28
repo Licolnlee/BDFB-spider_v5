@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 import requests
 from soupsieve.util import string
@@ -123,18 +124,25 @@ class pkulaw_cookie_req(object):
         self.username = username
         self.userpassword = userpassword
 
-    def get_cookie(self):
-        usernames = CONN.scan( )
-        for username in usernames:
-            print(username)
-        # userpassword = username
-        # print(username,userpassword)
-        # cookie = first_login_reqck(username,userpassword)
-        # print(cookie)
-        # cj = json.dumps(cookie)
-        # print(cj)
-        # CONNA.set('cookieID:'+username, cj)
+    def get_cookie(self,username, userpassword):
+        cookie = first_login_reqck(username,userpassword)
+        print(cookie)
+        cj = json.dumps(cookie)
+        print(cj)
+        CONNA.set('cookieID:'+username, cj)
 
 
-pk = pkulaw_cookie_req()
-pk.get_cookie()
+def run():
+    global username
+    usernames = CONN.scan()
+    for username in usernames:
+        userpassword = username
+        print(username, userpassword)
+        pk = pkulaw_cookie_req()
+        pk.get_cookie(username, userpassword)
+    # for username in usernames:
+    #     print(username)
+    #     username = random.choice(usernames)
+
+
+run()

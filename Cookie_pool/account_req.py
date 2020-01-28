@@ -135,7 +135,7 @@ def headers_json(filepath, headers):
 
 def test_req():
     try:
-        url = req_random_url()
+        url = req_random_url( )
         res = requests.get(url)
         if res.status_code == 200:
             content = decode_content(res.content)
@@ -172,7 +172,7 @@ def parse_content(content):
     # num = re.findall('\d+.?\d', context, re.S)
     # print(num)
     doc = pq(content)
-    info = doc('strong').text()
+    info = doc('strong').text( )
     num = re.findall('\d+.?\d', info, re.S)
     CONN.set(num[0], num[1])
     print(info)
@@ -186,7 +186,7 @@ def req_content(url):
         if response.status_code == 200:
             content = response.content
             context = decode_content(content)
-            print(context)
+            print('content: '+context)
             return context
         else:
             print(response.status_code)
@@ -197,18 +197,20 @@ def req_content(url):
         pass
 
 
-def parse_js(content):
+def parse_js(filepath):
     # with open(content,'r', encoding = 'utf-8') as f:
     #     doc = string(f.readlines())
     # print(doc)
     # info = json.loads(doc)
     # print(info)
     # url = info['dogo']['urls']
-    doc = pq(filename = content, parser = 'html')
+    doc = pq(filename = filepath, parser = 'html')
     items = doc('body script').text()
+    print(items)
     urls = re.findall('urls.*?=.*?"(.*?)";', items, re.S)
+    print(urls)
     for i in range(len(urls)):
-        CONN1.set('url['+str(i)+']', urls[i])
+        CONN1.set('url[' + str(i) + ']', urls[i])
     url = random.choice(urls)
     print(url)
     return url
@@ -216,9 +218,9 @@ def parse_js(content):
 
 def req_random_url():
     global url
-    count = CONN1.count()
+    count = CONN1.count( )
     i = random.randrange(count)
-    url = CONN1.get('url['+str(i)+']')
+    url = CONN1.get('url[' + str(i) + ']')
     print(url)
     return url
     # try:
@@ -282,7 +284,11 @@ class MyFutureConnector(object):
                 content = decode_content(html)
                 d_url = parse_index(content)
                 context = req_content(d_url)
-                parse_js(context)
+                filepath = './Cookies/req.html'
+                with open(filepath,'w',encoding = 'utf-8') as f:
+                    f.write(context)
+                f.close()
+                parse_js(filepath)
                 return context
             else:
                 headers = self.login( )
@@ -354,7 +360,7 @@ class MyFutureConnector(object):
 
 def job():
     for i in range(50):
-        test_req()
+        test_req( )
     # req_random_url()
     # url = 'F:\BDFB-spider_v5\Cookie_pool\\test.html'
     # parse_js(url)
@@ -371,12 +377,15 @@ def job():
     #     print('file not exist')
     #     mc.req_account(HEADERS)
 
+# test_req()
+#
 def run():
     while 1:
-        job_func = jobqueue.get()
-        job_func()
+        job_func = jobqueue.get( )
+        job_func( )
 
-jobqueue = queue.Queue()
+
+jobqueue = queue.Queue( )
 
 schedule.every(10).seconds.do(jobqueue.put, job)
 schedule.every(10).seconds.do(jobqueue.put, job)
@@ -384,16 +393,14 @@ schedule.every(10).seconds.do(jobqueue.put, job)
 schedule.every(10).seconds.do(jobqueue.put, job)
 schedule.every(10).seconds.do(jobqueue.put, job)
 schedule.every(10).seconds.do(jobqueue.put, job)
-
 
 work_thread = threading.Thread(target = run)
-work_thread.start()
+work_thread.start( )
 
 while 1:
-    schedule.run_pending()
+    schedule.run_pending( )
     time.sleep(1)
 
-#
-# # run( )
-# # test_req()
 
+# run( )
+# test_req()
