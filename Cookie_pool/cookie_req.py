@@ -124,14 +124,16 @@ class pkulaw_cookie_req(object):
         self.userpassword = userpassword
 
     def get_cookie(self):
-        username = CONN.random( )
-        userpassword = username
-        print(username,userpassword)
-        cookie = first_login_reqck(username,userpassword)
-        print(cookie)
-        cj = json.dumps(cookie)
-        print(cj)
-        CONNA.set('cookieID:'+username, cj)
+        usernames = CONN.scan( )
+        for username in usernames:
+            print(username)
+        # userpassword = username
+        # print(username,userpassword)
+        # cookie = first_login_reqck(username,userpassword)
+        # print(cookie)
+        # cj = json.dumps(cookie)
+        # print(cj)
+        # CONNA.set('cookieID:'+username, cj)
 
 
 pk = pkulaw_cookie_req()
