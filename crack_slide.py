@@ -50,6 +50,24 @@ import math
 #         ActionChains(browser).move_by_offset(x, 0).perform()
 #     ActionChains(browser).pause(0.5).release().perform()
 
+def get_path(distance):
+    result = []
+    current = 0
+    mid = distance * 4 / 5
+    t = 0.2
+    v = 0
+    while current < (distance - 10):
+        if current < mid:
+            a = 2
+        else:
+            a = -3
+        v0 = v
+        v = v0 + a * t
+        s = v0 * t + 0.5 * a * t * t
+        current += s
+        result.append(round(s))
+    return result
+
 
 class crack_slide( ):
     def __init__(self):
@@ -188,15 +206,18 @@ class crack_slide( ):
         result = cv.matchTemplate(bg, front, cv.TM_CCOEFF_NORMED)
         np.argmax(result)
         x, y = np.unravel_index(np.argmax(result), result.shape)
+        w, h = front.shape
 
         # track = self.get_track(y)
         # slide = self.get_slide(self.driver)
 
+        rs = get_path(y*1.05)
+        for r in rs:
+            ActionChains(self.driver).move_by_offset(xoffset = r, yoffset = 0).perform( )
 
-        ActionChains(self.driver).drag_and_drop_by_offset(div, xoffset = y, yoffset = 0).perform( )
+        time.sleep(0.5)
         ActionChains(self.driver).release(div).perform( )
         # self.move_to_gap(self.driver, slide, track)
-
 
         # ActionChains(self.driver).drag_and_drop_by_offset(div, xoffset = y, yoffset = 0).perform( )
 
