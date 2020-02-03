@@ -16,9 +16,8 @@ import redis
 import json
 from soupsieve.util import string
 
-from ..Cookie_pool/cookie_req import pkulaw_cookie_req
-from ..Cookie_pool/account_saver import RedisClient
-CONN = RedisClient('cookies', 'pkulaw')
+from Cookie_pool.account_saver import RedisClient
+CONN = RedisClient('account', 'pkulaw')
 
 
 # r = redis.StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
@@ -520,7 +519,7 @@ def singeldownload(cookie, name, gid):
         ses = requests.Session()
         res = ses.get(url = url1, headers = headers4, data = data1, stream = True)
         print(res.status_code)
-        if res.status_code == 200:
+        while res.status_code == 200:
             with open('./download/'+name+'.txt', 'wb') as f4:
                 for chunk in res.iter_content(chunk_size = 32):  # chunk_size #设置每次下载文件的大小
                     f4.write(chunk)  # 每一次循环存储一次下载下来的内容
@@ -530,12 +529,17 @@ def singeldownload(cookie, name, gid):
                 key = "尚未登录"
                 if key in first_line:
                     print(first_line + "请先登录获取cookie")
+                    flag = False
                 else:
                     print('您的账号已经登陆')
+                    flag = True
             f5.close()
-            print("return html....")
+            print("return flag....")
+            return flag
         else:
             print("unable to download...")
+            flag = False
+            return flag
     except Exception as e:
         print(e)
         pass
@@ -569,7 +573,7 @@ def singeldownload(cookie, name, gid):
     # response = requests.post(url1,headers1)
 
 
-def first_login_reqck():
+def first_login_reqck(username,userpassword):
     global cookieID
     url1 = 'https://www.pkulaw.cn/case/CheckLogin/Login'
 
@@ -578,8 +582,8 @@ def first_login_reqck():
         'ExitLogin': '',
         'menu': 'case',
         'CookieId': '',
-        'UserName': '15045729324',
-        'PassWord': '15045729324',
+        'UserName': username,
+        'PassWord': userpassword,
         'jz_id': '0',
         'jz_pwd': '0',
         'auto_log': '0'
@@ -683,16 +687,37 @@ def crawl_data():
 
 
 def download_data():
-    cookie = CONN.random()
+    global flag1
+    flag1 = True
+    with open('./Cookies/firstlogCookie.txt', 'r', encoding = 'utf-8') as f2:
+        cookie = f2.readline( )
+        print("cookies2: " + string(cookie))
+    f2.close( )
     names = r_pool.hkeys('downloadreqdata')
-    for i in range(len(names)):
-        names_list = {i: names[i].decode()}
-        gid = r_pool.hget('downloadreqdata', names_list[i]).decode()
-        singeldownload(cookie = cookie, name = names_list[i], gid = gid)
-        print(names_list[i])
-        print(gid)
-        i += 1
-        time.sleep(5)
+    if flag1:
+        for i in range(len(names)):
+            names_list = {i: names[i].decode()}
+            gid = r_pool.hget('downloadreqdata', names_list[i]).decode()
+            flag = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
+            flag1 = flag
+            print(names_list[i])
+            print(gid)
+            i += 1
+            time.sleep(5)
+    else:
+        print('cookie expired')
+        username = CONN.random_key()
+        userpassword = username
+        cookie = first_login_reqck(username, userpassword)
+        for i in range(len(names)):
+            names_list = {i: names[i].decode( )}
+            gid = r_pool.hget('downloadreqdata', names_list[i]).decode( )
+            flag = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
+            flag1 = flag
+            print(names_list[i])
+            print(gid)
+            i += 1
+            time.sleep(5)
 
 
 if __name__ == '__main__':

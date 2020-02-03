@@ -38,3 +38,6 @@ class RedisClient(object):
 
     def scan(self):
         return self.db.hkeys(self.name())
+
+    def random_key(self):
+        return random.choice(self.db.hkeys(self.name()))
