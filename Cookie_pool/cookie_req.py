@@ -129,7 +129,7 @@ class pkulaw_cookie_req(object):
         print(cookie)
         cj = json.dumps(cookie)
         print(cj)
-        CONNA.set('cookieID:'+username, cj)
+        CONNA.set(username, cj)
 
 
 def run():

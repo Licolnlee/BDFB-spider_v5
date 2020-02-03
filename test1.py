@@ -16,6 +16,10 @@ import redis
 import json
 from soupsieve.util import string
 
+from ..Cookie_pool/cookie_req import pkulaw_cookie_req
+from ..Cookie_pool/account_saver import RedisClient
+CONN = RedisClient('cookies', 'pkulaw')
+
 
 # r = redis.StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 pool = redis.ConnectionPool(host = 'localhost', port = 6379, db = 1, password = '')
@@ -679,7 +683,7 @@ def crawl_data():
 
 
 def download_data():
-    cookie = first_login_reqck()
+    cookie = CONN.random()
     names = r_pool.hkeys('downloadreqdata')
     for i in range(len(names)):
         names_list = {i: names[i].decode()}

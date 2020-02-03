@@ -133,16 +133,16 @@ def headers_json(filepath, headers):
     pass
 
 
-def test_req():
+def test_req(url):
     try:
-        url = req_random_url( )
+        # url = req_random_url( )
         res = requests.get(url)
         if res.status_code == 200:
             content = decode_content(res.content)
             parse_content(content)
         elif res.status_code == 404:
             print(404)
-            test_req()
+            # test_req(url)
             return None
     except Exception as e:
         print(e)
@@ -218,7 +218,7 @@ def parse_js(filepath):
 
 def req_random_url():
     global url
-    count = CONN1.count( )
+    count = CONN1.scan( )
     i = random.randrange(count)
     url = CONN1.get('url[' + str(i) + ']')
     print(url)
@@ -359,8 +359,10 @@ class MyFutureConnector(object):
 
 
 def job():
-    for i in range(50):
-        test_req( )
+    u_list = CONN1.scan()
+    for i in u_list:
+        url = CONN1.get(i)
+        test_req(url)
     # req_random_url()
     # url = 'F:\BDFB-spider_v5\Cookie_pool\\test.html'
     # parse_js(url)
@@ -379,28 +381,28 @@ def job():
 
 # test_req()
 #
-def run():
-    while 1:
-        job_func = jobqueue.get( )
-        job_func( )
+# def run():
+#     while 1:
+#         job_func = jobqueue.get( )
+#         job_func( )
+#
+#
+# jobqueue = queue.Queue( )
+#
+# schedule.every(10).seconds.do(jobqueue.put, job)
+# schedule.every(10).seconds.do(jobqueue.put, job)
+# schedule.every(10).seconds.do(jobqueue.put, job)
+# schedule.every(10).seconds.do(jobqueue.put, job)
+# schedule.every(10).seconds.do(jobqueue.put, job)
+# schedule.every(10).seconds.do(jobqueue.put, job)
+#
+# work_thread = threading.Thread(target = run)
+# work_thread.start( )
+#
+# while 1:
+#     schedule.run_pending( )
+#     time.sleep(1)
+#
 
-
-jobqueue = queue.Queue( )
-
-schedule.every(10).seconds.do(jobqueue.put, job)
-schedule.every(10).seconds.do(jobqueue.put, job)
-schedule.every(10).seconds.do(jobqueue.put, job)
-schedule.every(10).seconds.do(jobqueue.put, job)
-schedule.every(10).seconds.do(jobqueue.put, job)
-schedule.every(10).seconds.do(jobqueue.put, job)
-
-work_thread = threading.Thread(target = run)
-work_thread.start( )
-
-while 1:
-    schedule.run_pending( )
-    time.sleep(1)
-
-
-# run( )
+job( )
 # test_req()
