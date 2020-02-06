@@ -1,21 +1,24 @@
-import random
+import json
+import os
+import shutil
 import time
 
-import chardet
-import requests
-from PIL import Image
-from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as Ec
-from Cookie_pool.account_saver import RedisClient
-from image_process import image_process
 import cv2 as cv
 import numpy as np
-import math
+import redis
+from pyquery import PyQuery as pq
+from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as Ec
+from selenium.webdriver.support.wait import WebDriverWait
+
+from Cookie_pool.account_saver import RedisClient
+
+pool = redis.ConnectionPool(host = 'localhost', port = 6379, db = 1, password = '')
+r_pool = redis.StrictRedis(connection_pool = pool, charset = 'UTF-8', errors = 'strict', decode_responses = True,
+                           unix_socket_path = None)
+r_pipe = r_pool.pipeline( )
 
 CONN = RedisClient('account', 'pkulaw')
 
@@ -39,12 +42,45 @@ def get_path(distance):
     return result
 
 
+def parse_page(html):
+    try:
+        doc = pq(html, parser = 'html')
+        items = doc('.block').items( )
+        i = 0
+        for item in items:
+            gid = item('input').attr('value')
+            # print(gid)
+            name = item('h4 a').text( )
+            # print(name)
+            related_info = item('.related-info').text( )
+            issue_type = related_info.split(' / ')[0]
+            # print(issue_type)
+            court_name = related_info.split(' / ')[1]
+            # print(court_name)
+            issue_num = related_info.split(' / ')[2]
+            # print(issue_num)
+            issue_date = related_info.split(' / ')[-1]
+            # print(issue_date)
+            dg = dict(gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num,
+                      issue_date = issue_date)
+            en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('UTF-8')
+            r_pipe.hset('crawldata', name, en_json_dg)
+            r_pipe.hset('downloadreqdata', name, gid)
+            r_pipe.execute( )
+            i += 1
+        print(i)
+    except Exception as e:
+        print(e)
+        pass
+
+
 class crack_slide( ):
     def __init__(self):
         self.driver = webdriver.Chrome( )
         self.driver.maximize_window( )
         self.wait = WebDriverWait(self.driver, 10)
         self.url = 'https://www.pkulaw.com/case/'
+        self.COUNT = 0
 
     # chrome_options = webdriver.ChromeOptions( )
     # chrome_options.add_argument("--start-maximized")
@@ -83,19 +119,18 @@ class crack_slide( ):
         bg = cv.imread('./download/sc.png')
         front = cv.imread('./download/nc.png')
 
-        bg = cv.GaussianBlur(bg, (1, 1), -10)
-        bg = cv.cvtColor(bg, cv.COLOR_BGR2GRAY)
+        print(bg.shape)
+        print(front.shape)
+        for i in range(bg.shape[0]):
+            for j in range(bg.shape[1]):
+                if bg[i][j][0] >= 157 and bg[i][j][1] >= 157 and bg[i][j][2] >= 157:
+                    bg[i][j] = (0, 0, 0)
         front = cv.cvtColor(front, cv.COLOR_BGR2GRAY)
-        # bg = cv.Canny(bg, 100, 200)
+        bg = cv.cvtColor(bg, cv.COLOR_BGR2GRAY)
+        bg = cv.GaussianBlur(bg, (1, 1), -10)
         result = cv.matchTemplate(bg, front, cv.TM_CCOEFF_NORMED)
         x, y = np.unravel_index(np.argmax(result), result.shape)
         print(x, y)
-
-        # w, h = front.shape
-        # cv.rectangle(bg, (y, x), (y + w, x + h), (7, 249, 151), 2)
-        # cv.imwrite("gray.jpg", bg)
-        # self.show(bg)
-
         return x, y
 
     #
@@ -236,13 +271,14 @@ class crack_slide( ):
         return slide_ing
 
     def req_page(self):
-        self.wait.until(Ec.presence_of_element_located(self.locator(By.ID, "recordgroup"))).click( )
         time.sleep(1)
+        self.wait.until(Ec.presence_of_element_located(self.locator(By.ID, "recordgroup"))).click( )
+        time.sleep(2)
         self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="recordgroup"]/a[2]'))).click( )
         # self.driver.find_element(by = 'id', value = 'recordgroup').click( )
         # time.sleep(3)
         # self.driver.find_element(by = 'xpath', value = '//*[@id="recordgroup"]/a[2]').click( )
-        time.sleep(1)
+        time.sleep(2)
         self.wait.until(Ec.presence_of_element_located(
             self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a'))).click( )
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a').click( )
@@ -259,7 +295,7 @@ class crack_slide( ):
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[3]/a').click()
 
     def autopage(self, num):
-        time.sleep(2)
+        time.sleep(6)
         self.wait.until(Ec.presence_of_element_located(
             self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[' + str(num) + ']/a'))).click( )
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[4]/a').click( )
@@ -296,34 +332,71 @@ class crack_slide( ):
         self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="loginByUserName"]'))).click( )
         time.sleep(1)
 
-    def crack(self):
-        self.driver.get(self.url)
-        # time.sleep(1)
-        # self.login()
-        # time.sleep(1)
-        self.req_page()
-        time.sleep(1)
-        for num in range(4, 10):
-            try:
-                self.autopage(num)
-            except Exception as e:
-                pass
+    def autocheck(self):
+        try:
+            print('autochecking...')
+            time.sleep(1)
+            if self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="drag"]/div[3]'))):
+                print('Trying ' + str(self.COUNT) + ' times...')
+                os.mkdir('./error/')
+                shutil.copyfile('./download/sc.png', './error/error_sc' + str(self.COUNT) + '.png')
+                shutil.copyfile('./download/nc.png', './error/error_nc' + str(self.COUNT) + '.png')
+                time.sleep(1)
+                self.wait.until(
+                    Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="drag"]/a/div'))).click( )
+                print('Refreshing...')
+                self.COUNT += 1
+                return True
+            # else:
+            #     print('Verification success...')
+            #     return False
+        except Exception as e:
+            print(e)
+            return False
+
+    def vpass(self):
+        try:
+            time.sleep(1)
             slide_ing = self.image_capture( )
             x, y = self.process( )
-            rs = get_path(y + 9)
+            rs = get_path(y + 8.93)
             for r in rs:
                 ActionChains(self.driver).move_by_offset(xoffset = r, yoffset = 0).perform( )
             time.sleep(0.002)
             time.sleep(1)
             ActionChains(self.driver).release(slide_ing).perform( )
-            time.sleep(10)
-            sc = self.driver.page_source
-            print(sc)
+            time.sleep(1)
+        except Exception as e:
+            print(e)
+
+    def crack(self):
+        self.driver.get(self.url)
+        time.sleep(1)
+        self.login( )
+        time.sleep(1)
+        self.req_page( )
+        time.sleep(1)
+        for num in range(4, 11):
+            try:
+                time.sleep(1)
+                self.autopage(num)
+                time.sleep(1)
+                self.vpass( )
+                time.sleep(2)
+                while self.autocheck():
+                    time.sleep(2)
+                    self.vpass( )
+                    time.sleep(2)
+                time.sleep(5)
+                print('sleeping...')
+                sc = self.driver.page_source
+                parse_page(sc)
+                print('returning...')
+            except Exception as e:
+                print(e)
+                pass
         time.sleep(100)
         self.driver.close( )
-        # self.move_to_gap(self.driver, slide, track)
-
-        # ActionChains(self.driver).drag_and_drop_by_offset(div, xoffset = y, yoffset = 0).perform( )
 
 
 cs = crack_slide( )

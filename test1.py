@@ -164,7 +164,9 @@ def req_page(page):
 
 def parse_index(html):
     doc = pq(html)
+    print(doc)
     items = doc('.block').items()
+    print(items)
     i = 0
     for item in items:
         gid = item('input').attr('value')
@@ -174,6 +176,7 @@ def parse_index(html):
         court_name = related_info.split(' / ')[1]
         issue_num = related_info.split(' / ')[2]
         issue_date = related_info.split(' / ')[-1]
+        print(court_name)
         dg = dict(gid = gid, issue_type = issue_type, court_name = court_name, issue_num = issue_num,
                   issue_date = issue_date)
         en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('UTF-8')
@@ -722,4 +725,3 @@ def download_data():
 
 if __name__ == '__main__':
     download_data()
-    # crawl_data()
