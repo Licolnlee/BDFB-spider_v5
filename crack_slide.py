@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import shutil
 import time
 
@@ -21,12 +22,13 @@ r_pool = redis.StrictRedis(connection_pool = pool, charset = 'UTF-8', errors = '
 r_pipe = r_pool.pipeline( )
 
 CONN = RedisClient('account', 'pkulaw')
+FLAG = True
 
 
 def get_path(distance):
     result = []
     current = 0
-    mid = distance * 7 / 8
+    mid = distance * 8 / 9
     t = 0.2
     v = 0
     while current < (distance - 10):
@@ -43,6 +45,7 @@ def get_path(distance):
 
 
 def parse_page(html):
+    print('processing...')
     try:
         doc = pq(html, parser = 'html')
         items = doc('.block').items( )
@@ -68,7 +71,7 @@ def parse_page(html):
             r_pipe.hset('downloadreqdata', name, gid)
             r_pipe.execute( )
             i += 1
-        print(i)
+        print('completed...')
     except Exception as e:
         print(e)
         pass
@@ -79,6 +82,7 @@ class crack_slide( ):
         self.driver = webdriver.Chrome( )
         self.driver.maximize_window( )
         self.wait = WebDriverWait(self.driver, 10)
+        self.driver.implicitly_wait(10)
         self.url = 'https://www.pkulaw.com/case/'
         self.COUNT = 0
 
@@ -169,46 +173,46 @@ class crack_slide( ):
     # #         i = i + 1
     # #         return track
     #
-    # def get_track(self, distance):
-    #     """
-    #     模拟轨迹 假装是人在操作
-    #     :param distance:
-    #     :return:
-    #     """
-    #     # 初速度
-    #     v = 0
-    #     # 单位时间为0.2s来统计轨迹，轨迹即0.2内的位移
-    #     t = 0.2
-    #     # 位移/轨迹列表，列表内的一个元素代表0.2s的位移
-    #     tracks = []
-    #     # 当前的位移
-    #     current = 0
-    #     # 到达mid值开始减速
-    #     mid = distance * 7 / 8
-    #
-    #     distance += 10  # 先滑过一点，最后再反着滑动回来
-    #     # a = random.randint(1,3)
-    #     while current < distance:
-    #         if current < mid:
-    #             # 加速度越小，单位时间的位移越小,模拟的轨迹就越多越详细
-    #             a = random.randint(2, 4)  # 加速运动
-    #         else:
-    #             a = -random.randint(3, 5)  # 减速运动
-    #
-    #         # 初速度
-    #         v0 = v  # 0.2秒时间内的位移
-    #         s = v0 * t + 0.5 * a * (t ** 2)
-    #         # 当前的位置
-    #         current += s  # 添加到轨迹列表
-    #         tracks.append(round(s))
-    #
-    #         # 速度已经达到v,该速度作为下次的初速度
-    #         v = v0 + a * t  # 反着滑动到大概准确位置
-    #     for i in range(4):
-    #         tracks.append(-random.randint(2, 3))
-    #     for i in range(4):
-    #         tracks.append(-random.randint(1, 3))
-    #     return tracks
+    def get_track(self, distance):
+        """
+        模拟轨迹 假装是人在操作
+        :param distance:
+        :return:
+        """
+        # 初速度
+        v = 0
+        # 单位时间为0.2s来统计轨迹，轨迹即0.2内的位移
+        t = 0.2
+        # 位移/轨迹列表，列表内的一个元素代表0.2s的位移
+        tracks = []
+        # 当前的位移
+        current = 0
+        # 到达mid值开始减速
+        mid = distance * 7 / 8
+
+        distance += 10  # 先滑过一点，最后再反着滑动回来
+        # a = random.randint(1,3)
+        while current < distance:
+            if current < mid:
+                # 加速度越小，单位时间的位移越小,模拟的轨迹就越多越详细
+                a = random.randint(2, 4)  # 加速运动
+            else:
+                a = -random.randint(3, 5)  # 减速运动
+
+            # 初速度
+            v0 = v  # 0.2秒时间内的位移
+            s = v0 * t + 0.5 * a * (t ** 2)
+            # 当前的位置
+            current += s  # 添加到轨迹列表
+            tracks.append(round(s))
+
+            # 速度已经达到v,该速度作为下次的初速度
+            v = v0 + a * t  # 反着滑动到大概准确位置
+        for i in range(4):
+            tracks.append(-random.randint(2, 3))
+        for i in range(4):
+            tracks.append(-random.randint(1, 3))
+        return tracks
 
     # def get_slide(self, browser):
     #     slide = None
@@ -294,10 +298,19 @@ class crack_slide( ):
         # time.sleep(7)
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[3]/a').click()
 
-    def autopage(self, num):
-        time.sleep(6)
-        self.wait.until(Ec.presence_of_element_located(
-            self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[' + str(num) + ']/a'))).click( )
+    def autopagecheck(self):
+        print('autopagechecking...')
+        try:
+            time.sleep(6)
+            if self.wait.until(Ec.element_to_be_clickable(
+                    self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[11]/a'))):
+                return True
+        except Exception as e:
+            print(e)
+            print('unclickable...')
+            return False
+        # self.wait.until(Ec.presence_of_element_located(
+        #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[' + str(num) + ']/a'))).click( )
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[4]/a').click( )
         # time.sleep(1)
         # self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="bgImg"]'))).screenshot(
@@ -314,6 +327,26 @@ class crack_slide( ):
 
         # track = self.get_track(y)
         # slide = self.get_slide(self.driver)
+
+    def autopage(self, num):
+        print('paging...')
+        try:
+            time.sleep(5)
+            n_page = self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[3]/a')))
+            value = n_page.get_attribute("pageindex")
+            print(n_page)
+            print(value)
+            self.driver.execute_script("arguments[0].setAttribute('pageindex',"+str(num)+");", n_page)
+            value = n_page.get_attribute("pageindex")
+            print(n_page)
+            print(value)
+            time.sleep(1)
+            n_page.click()
+            # self.wait.until(Ec.presence_of_element_located(
+            #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[2]/a'))).click()
+        except Exception as e:
+            print(e)
 
     def login(self):
         account = CONN.random_key( )
@@ -338,7 +371,6 @@ class crack_slide( ):
             time.sleep(1)
             if self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="drag"]/div[3]'))):
                 print('Trying ' + str(self.COUNT) + ' times...')
-                os.mkdir('./error/')
                 shutil.copyfile('./download/sc.png', './error/error_sc' + str(self.COUNT) + '.png')
                 shutil.copyfile('./download/nc.png', './error/error_nc' + str(self.COUNT) + '.png')
                 time.sleep(1)
@@ -352,14 +384,16 @@ class crack_slide( ):
             #     return False
         except Exception as e:
             print(e)
+            print('Verification success...')
             return False
 
     def vpass(self):
+        print('verification passing...')
         try:
             time.sleep(1)
             slide_ing = self.image_capture( )
             x, y = self.process( )
-            rs = get_path(y + 8.93)
+            rs = get_path(y + 8.94)
             for r in rs:
                 ActionChains(self.driver).move_by_offset(xoffset = r, yoffset = 0).perform( )
             time.sleep(0.002)
@@ -369,35 +403,35 @@ class crack_slide( ):
         except Exception as e:
             print(e)
 
-    def crack(self):
+    def crack(self, fnum, lnum):
         self.driver.get(self.url)
-        time.sleep(1)
-        self.login( )
+        # time.sleep(1)
+        # self.login( )
         time.sleep(1)
         self.req_page( )
-        time.sleep(1)
-        for num in range(4, 11):
+        time.sleep(2)
+        for num in range(fnum, lnum):
             try:
                 time.sleep(1)
                 self.autopage(num)
                 time.sleep(1)
                 self.vpass( )
                 time.sleep(2)
-                while self.autocheck():
+                while self.autocheck( ):
                     time.sleep(2)
                     self.vpass( )
                     time.sleep(2)
                 time.sleep(5)
-                print('sleeping...')
                 sc = self.driver.page_source
                 parse_page(sc)
-                print('returning...')
             except Exception as e:
                 print(e)
                 pass
+        print('waiting....')
         time.sleep(100)
+        print('closing...')
         self.driver.close( )
 
 
 cs = crack_slide( )
-cs.crack( )
+cs.crack(3, 13)
