@@ -13,6 +13,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as Ec
 from selenium.webdriver.support.wait import WebDriverWait
+from soupsieve.util import string
 
 from Cookie_pool.account_saver import RedisClient
 
@@ -28,7 +29,7 @@ FLAG = True
 def get_path(distance):
     result = []
     current = 0
-    mid = distance * 8 / 9
+    mid = distance * 10 / 11
     t = 0.2
     v = 0
     while current < (distance - 10):
@@ -275,40 +276,105 @@ class crack_slide( ):
         return slide_ing
 
     def req_page(self):
-        time.sleep(1)
-        self.wait.until(Ec.presence_of_element_located(self.locator(By.ID, "recordgroup"))).click( )
-        time.sleep(2)
-        self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="recordgroup"]/a[2]'))).click( )
-        # self.driver.find_element(by = 'id', value = 'recordgroup').click( )
-        # time.sleep(3)
-        # self.driver.find_element(by = 'xpath', value = '//*[@id="recordgroup"]/a[2]').click( )
-        time.sleep(2)
-        self.wait.until(Ec.presence_of_element_located(
-            self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a'))).click( )
-        # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a').click( )
-        time.sleep(1)
-        self.wait.until(Ec.presence_of_element_located(
-            self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]'))).click( )
-        # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]').click( )
-        time.sleep(1)
-        self.wait.until(Ec.presence_of_element_located(
-            self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]/div/dl/dd[4]'))).click( )
+        try:
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[2]/ul/li[1]/a'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[7]/h4/a[1]'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[7]/ul/li[1]/a'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="recordgroup"]/a[1]'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="recordgroup"]/a[2]'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="rightContent"]/div[3]/div/div[3]/h4/a'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="rightContent"]/div[3]/div/div[1]/div/div[2]'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="rightContent"]/div[3]/div/div[1]/div/div[2]/div/dl/dd[4]'))).click( )
+            time.sleep(3)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[5]/h4/a[1]'))).click( )
+            time.sleep(3)
+        except Exception as e:
+            print(e)
+        # self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[2]/ul/li[1]/a'))).click( )
+        # # self.wait.until(Ec.presence_of_element_located(self.locator(By.ID, "recordgroup"))).click( )
+        # time.sleep(1)
+        # self.wait.until(Ec.presence_of_element_located(
+        #     self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[7]/h4/a[1]'))).click( )
+        # # self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="recordgroup"]/a[2]'))).click( )
+        # # self.driver.find_element(by = 'id', value = 'recordgroup').click( )
+        # # time.sleep(3)
+        # # self.driver.find_element(by = 'xpath', value = '//*[@id="recordgroup"]/a[2]').click( )
+        # time.sleep(1)
+        # self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[7]/ul/li[1]/a'))).click( )
+        # # self.wait.until(Ec.presence_of_element_located(
+        # #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a'))).click( )
+        # # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/h4/a').click( )
+        # time.sleep(1)
+        # self.wait.until(Ec.presence_of_element_located(
+        #     self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[5]/h4/a[1]'))).click( )
+        # # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]').click( )
+        # time.sleep(1)
+        # self.wait.until(Ec.presence_of_element_located(
+        #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]/div/dl/dd[4]'))).click( )
         # self.driver.find_element(by = 'xpath',
         # value = '//*[@id="rightContent"]/div[2]/div/div[1]/div/div[2]/div/dl/dd[4]').click( )
         # time.sleep(7)
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[3]/a').click()
 
-    def autopagecheck(self):
-        print('autopagechecking...')
+    def autoTraversal_f(self, num):
+        print('autoTraversaling...')
         try:
-            time.sleep(6)
-            if self.wait.until(Ec.element_to_be_clickable(
-                    self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[11]/a'))):
-                return True
+            time.sleep(3)
+            province_button = self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[5]/ul/li[' + str(num) + ']/a')))
+            # value = province_button.get_attribute("cluster_code")
+            # print(value)
+            # print(num)
+            # # n_str = str(num)
+            # # n_z = n_str.zfill(2)
+            # # print(n_z)
+            # self.driver.execute_script("return arguments[0].setAttribute('cluster_code',"+str(num)+");", province_button)
+            # value = province_button.get_attribute("cluster_code")
+            # print(value)
+            time.sleep(3)
+            province_button.click( )
         except Exception as e:
             print(e)
             print('unclickable...')
-            return False
+
+    def autoTraversal_p(self, num):
+        print('autoTraversaling...')
+        try:
+            time.sleep(3)
+            province_button = self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[5]/ul/li[2]/a')))
+            value = province_button.get_attribute("cluster_code")
+            print(value)
+            print(num)
+            # n_str = str(num)
+            # n_z = n_str.zfill(2)
+            # print(n_z)
+            self.driver.execute_script("return arguments[0].setAttribute('cluster_code'," + str(num) + ");",
+                                       province_button)
+            value = province_button.get_attribute("cluster_code")
+            print(value)
+            time.sleep(3)
+            province_button.click( )
+        except Exception as e:
+            print(e)
+            print('unclickable...')
         # self.wait.until(Ec.presence_of_element_located(
         #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[' + str(num) + ']/a'))).click( )
         # self.driver.find_element(by = 'xpath', value = '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[4]/a').click( )
@@ -328,42 +394,59 @@ class crack_slide( ):
         # track = self.get_track(y)
         # slide = self.get_slide(self.driver)
 
+    def autoreturn(self):
+        print('autoreturning...')
+        try:
+            time.sleep(5)
+            self.wait.until(Ec.presence_of_element_located(
+                self.locator(By.XPATH, '//*[@id="leftContent"]/div[1]/div[5]/h4/a[3]'))).click( )
+            time.sleep(2)
+        except Exception as e:
+            print(e)
+
     def autopage(self, num):
         print('paging...')
         try:
             time.sleep(5)
             n_page = self.wait.until(Ec.presence_of_element_located(
-                self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[3]/a')))
+                self.locator(By.XPATH, '//*[@id="rightContent"]/div[3]/div/div[3]/ul/li[2]/a')))
             value = n_page.get_attribute("pageindex")
             print(n_page)
             print(value)
-            self.driver.execute_script("arguments[0].setAttribute('pageindex',"+str(num)+");", n_page)
+            self.driver.execute_script("arguments[0].setAttribute('pageindex'," + str(num) + ");", n_page)
             value = n_page.get_attribute("pageindex")
             print(n_page)
             print(value)
             time.sleep(1)
-            n_page.click()
-            # self.wait.until(Ec.presence_of_element_located(
-            #     self.locator(By.XPATH, '//*[@id="rightContent"]/div[2]/div/div[3]/ul/li[2]/a'))).click()
+            n_page.click( )
         except Exception as e:
             print(e)
 
     def login(self):
-        account = CONN.random_key( )
-        aps = account
-        self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="newloginbtn"]'))).click( )
-        time.sleep(1)
-        username = self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="inputUserName"]')))
-        username.click( )
-        username.clear( )
-        username.send_keys(account)
-        userpassword = self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="inputPwd"]')))
-        userpassword.click( )
-        userpassword.clear( )
-        userpassword.send_keys(aps)
-        time.sleep(1)
-        self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="loginByUserName"]'))).click( )
-        time.sleep(1)
+        try:
+            # account = CONN.random_key( )
+            account = 16525242522
+            aps = account
+            time.sleep(1)
+            self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="newloginbtn"]'))).click( )
+            time.sleep(1)
+            username = self.wait.until(
+                Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="inputUserName"]')))
+            username.click( )
+            username.clear( )
+            username.send_keys(account)
+            time.sleep(1)
+            userpassword = self.wait.until(
+                Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="inputPwd"]')))
+            userpassword.click( )
+            userpassword.clear( )
+            userpassword.send_keys(aps)
+            time.sleep(1)
+            self.wait.until(
+                Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="loginByUserName"]'))).click( )
+            time.sleep(1)
+        except Exception as e:
+            print(e)
 
     def autocheck(self):
         try:
@@ -379,9 +462,6 @@ class crack_slide( ):
                 print('Refreshing...')
                 self.COUNT += 1
                 return True
-            # else:
-            #     print('Verification success...')
-            #     return False
         except Exception as e:
             print(e)
             print('Verification success...')
@@ -403,35 +483,59 @@ class crack_slide( ):
         except Exception as e:
             print(e)
 
+    def autopage_f(self):
+        try:
+            time.sleep(2)
+            sc = self.driver.page_source
+            parse_page(sc)
+            time.sleep(5)
+            self.wait.until(Ec.presence_of_element_located(self.locator(By.XPATH, '//*[@id="rightContent"]/div[3]/div/div[3]/ul/li[3]/a'))).click()
+            time.sleep(2)
+        except Exception as e:
+            print(e)
+
+    def autopage_p(self, num):
+        try:
+            sc = self.driver.page_source
+            parse_page(sc)
+            time.sleep(5)
+            self.autopage(num)
+            self.vpass( )
+            while self.autocheck( ):
+                self.vpass( )
+            time.sleep(2)
+        except Exception as e:
+            print(e)
+
     def crack(self, fnum, lnum):
         self.driver.get(self.url)
-        # time.sleep(1)
-        # self.login( )
-        time.sleep(1)
+        self.login( )
         self.req_page( )
-        time.sleep(2)
-        for num in range(fnum, lnum):
-            try:
-                time.sleep(1)
-                self.autopage(num)
-                time.sleep(1)
-                self.vpass( )
-                time.sleep(2)
-                while self.autocheck( ):
-                    time.sleep(2)
-                    self.vpass( )
-                    time.sleep(2)
-                time.sleep(5)
-                sc = self.driver.page_source
-                parse_page(sc)
-            except Exception as e:
-                print(e)
-                pass
-        print('waiting....')
+        try:
+            for p_num in range(2, 32):
+                if p_num < 10:
+                    self.autoTraversal_f(p_num)
+                    for num in range(fnum, lnum):
+                        if num < 3:
+                            self.autopage_f()
+                        else:
+                            self.autopage_p(num)
+                    self.autoreturn( )
+                else:
+                    self.autoTraversal_p(p_num)
+                    for num in range(fnum, lnum):
+                        if num < 3:
+                            self.autopage_f()
+                        else:
+                            self.autopage_p(num)
+        except Exception as e:
+            print(e)
+            pass
+        print('Completed...waiting....')
         time.sleep(100)
         print('closing...')
         self.driver.close( )
 
 
-cs = crack_slide( )
-cs.crack(3, 13)
+cs = crack_slide()
+cs.crack(2, 4)
