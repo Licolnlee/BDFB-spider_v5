@@ -41,3 +41,6 @@ class RedisClient(object):
 
     def random_key(self):
         return random.choice(self.db.hkeys(self.name()))
+
+    def get_alval(self):
+        return self.db.hvals(self.name())

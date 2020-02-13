@@ -1,29 +1,28 @@
 # coding = utf-8
 # -*- coding:utf-8 -*-
-import ast
+import json
 import os
-import re
+import threading
 import time
 from urllib.parse import urlencode
-from urllib.request import urlretrieve, urlopen
+
 import chardet
-import requests
-from pyquery import PyQuery as pq
-from redis import StrictRedis
-from bs4 import BeautifulSoup
 # from fake_useragent import UserAgent
 import redis
-import json
+import requests
+from pyquery import PyQuery as pq
 from soupsieve.util import string
 
 from Cookie_pool.account_saver import RedisClient
-CONN = RedisClient('account', 'pkulaw')
 
+CONN = RedisClient('account', 'pkulaw')
+NUM = 16
 
 # r = redis.StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 pool = redis.ConnectionPool(host = 'localhost', port = 6379, db = 1, password = '')
-r_pool = redis.StrictRedis(connection_pool = pool, charset = 'UTF-8', errors='strict', decode_responses=True, unix_socket_path=None)
-r_pipe = r_pool.pipeline()
+r_pool = redis.StrictRedis(connection_pool = pool, charset = 'UTF-8', errors = 'strict', decode_responses = True,
+                           unix_socket_path = None)
+r_pipe = r_pool.pipeline( )
 # ua = UserAgent( )
 # redis = StrictRedis(host = 'localhost', port = 6379, db = 1, password = '')
 # url="https://www.baidu.com"
@@ -165,13 +164,13 @@ def req_page(page):
 def parse_index(html):
     doc = pq(html)
     print(doc)
-    items = doc('.block').items()
+    items = doc('.block').items( )
     print(items)
     i = 0
     for item in items:
         gid = item('input').attr('value')
-        name = item('h4 a').text().encode('UTF-8')
-        related_info = item('.related-info').text()
+        name = item('h4 a').text( ).encode('UTF-8')
+        related_info = item('.related-info').text( )
         issue_type = related_info.split(' / ')[0]
         court_name = related_info.split(' / ')[1]
         issue_num = related_info.split(' / ')[2]
@@ -182,7 +181,7 @@ def parse_index(html):
         en_json_dg = json.dumps(dg, ensure_ascii = False, indent = 4).encode('UTF-8')
         r_pipe.hset('crawldata', name, en_json_dg)
         r_pipe.hset('downloadreqdata', name, gid)
-        r_pipe.execute()
+        r_pipe.execute( )
         # print(name)
         # print(gid)
         # print(related_info)
@@ -238,6 +237,8 @@ def parse_index(html):
     # items = doc('.container .rightContent ul li .block input').items()
     # for item in items:
     #     yield item.attr('value')
+
+
 # def req_index(page):
 #     data = data1
 #     req_pageindex = int(page)
@@ -491,6 +492,8 @@ def parse_index(html):
 
 
 def singeldownload(cookie, name, gid):
+    global proxy
+
     headers4 = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -519,33 +522,65 @@ def singeldownload(cookie, name, gid):
     try:
         print("Requesting Pages...")
         print('headers4.getcookie: ' + string(headers4.get('Cookie')))
-        ses = requests.Session()
-        res = ses.get(url = url1, headers = headers4, data = data1, stream = True)
-        print(res.status_code)
-        while res.status_code == 200:
-            with open('./download/'+name+'.txt', 'wb') as f4:
-                for chunk in res.iter_content(chunk_size = 32):  # chunk_size #设置每次下载文件的大小
-                    f4.write(chunk)  # 每一次循环存储一次下载下来的内容
-            with open('./download/'+name+'.txt', 'r', encoding = 'GBK') as f5:
-                lines = f5.readlines()
+        proxy = get_proxy( )
+        proxies = {
+            'http': 'http://' + proxy
+        }
+        ses = requests.Session( )
+        r = ses.head(url1)
+        total = int(r.headers['Content-Length'])
+        print(total)
+        # print(r.status_code)
+        while r.status_code != 500:
+            thread_list = []
+            # 一个数字,用来标记打印每个线程
+            n = 0
+            for ran in get_range(total):
+                start, end = ran
+                # 打印信息
+                print('thread %d start:%s,end:%s' % (n, start, end))
+                n += 1
+                # 创建线程 传参,处理函数为download
+                thread = threading.Thread(target = download(name, start, end, headers4, ses, url1, data1, proxies),
+                                          args = (start, end))
+                # 启动
+                thread.start( )
+                thread_list.append(thread)
+            for i in thread_list:
+                # 设置等待
+                i.join( )
+            print('download %s load success' % (name))
+            # with open('./download/' + name + '.txt', 'wb') as f4:
+            #     for ran in get_range(total):
+            #         headers4['Range'] = 'Bytes=%s-%s' % ran
+            #         r = ses.get(url = url1, headers = headers4, data = data1, stream = True, proxies = proxies)
+            #         f4.seek(ran[0])
+            #         f4.write(r.content)
+            #     f4.close( )
+            # res = ses.get(url = url1, headers = headers4, data = data1, stream = True, proxies = proxies)
+            #
+            # print('Using proxy : ' + proxy)
+            # print(res.status_code)
+            # while res.status_code == 200:
+            #     with open('./download/'+name+'.txt', 'wb') as f4:
+            #         for chunk in res.iter_content(chunk_size = 32):  # chunk_size #设置每次下载文件的大小
+            #             f4.write(chunk)  # 每一次循环存储一次下载下来的内容
+            with open('./download/' + name + '.txt', 'r', encoding = 'GBK') as f5:
+                lines = f5.readlines( )
                 first_line = lines[0]
                 key = "尚未登录"
                 if key in first_line:
                     print(first_line + "请先登录获取cookie")
-                    flag = False
+                    return False
                 else:
                     print('您的账号已经登陆')
-                    flag = True
-            f5.close()
-            print("return flag....")
-            return flag
+                    return True
         else:
             print("unable to download...")
-            flag = False
-            return flag
+            return False
     except Exception as e:
         print(e)
-        pass
+        return False
     # ses = requests.Session()
     # res = ses.get(url = url1, data = data1, headers = headers1, timeout = 10)
     # print(res.content)
@@ -576,7 +611,27 @@ def singeldownload(cookie, name, gid):
     # response = requests.post(url1,headers1)
 
 
-def first_login_reqck(username,userpassword):
+def download(name, start, end, headers4, ses, url1, data1, proxies):
+    with open('./download/' + name + '.txt', 'wb') as f4:
+        headers4['Range'] = 'Bytes=%s-%s' % (start, end)
+        r = ses.get(url = url1, headers = headers4, data = data1, stream = True, proxies = proxies)
+        f4.seek(start)
+        f4.write(r.content)
+    f4.close( )
+
+
+def get_range(total):
+    ranges = []
+    offset = int(total / NUM)
+    for i in range(NUM):
+        if i == NUM - 1:
+            ranges.append((i * offset, ''))
+        else:
+            ranges.append((i * offset, (i + 1) * offset))
+    return ranges
+
+
+def first_login_reqck(username, userpassword):
     global cookieID
     url1 = 'https://www.pkulaw.cn/case/CheckLogin/Login'
 
@@ -690,38 +745,40 @@ def crawl_data():
 
 
 def download_data():
-    global flag1
-    flag1 = True
-    with open('./Cookies/firstlogCookie.txt', 'r', encoding = 'utf-8') as f2:
-        cookie = f2.readline( )
-        print("cookies2: " + string(cookie))
-    f2.close( )
-    names = r_pool.hkeys('downloadreqdata')
-    if flag1:
+    try:
+        global flag1
+        with open('./Cookies/firstlogCookie.txt', 'r', encoding = 'utf-8') as f2:
+            cookie = f2.readline( )
+            print("cookies2: " + string(cookie))
+        f2.close( )
+        names = r_pool.hkeys('downloadreqdata')
         for i in range(len(names)):
-            names_list = {i: names[i].decode()}
-            gid = r_pool.hget('downloadreqdata', names_list[i]).decode()
-            flag = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
-            flag1 = flag
-            print(names_list[i])
-            print(gid)
-            i += 1
-            time.sleep(5)
-    else:
-        print('cookie expired')
-        username = CONN.random_key()
-        userpassword = username
-        cookie = first_login_reqck(username, userpassword)
-        for i in range(len(names)):
-            names_list = {i: names[i].decode( )}
-            gid = r_pool.hget('downloadreqdata', names_list[i]).decode( )
-            flag = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
-            flag1 = flag
-            print(names_list[i])
-            print(gid)
-            i += 1
-            time.sleep(5)
+            flag1 = True
+            while flag1:
+                names_list = {i: names[i].decode( )}
+                gid = r_pool.hget('downloadreqdata', names_list[i]).decode( )
+                print(names_list[i])
+                print(gid)
+                flag1 = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
+                i += 1
+                time.sleep(5)
+            else:
+                print('cookie expired')
+                username = CONN.random_key( )
+                print(username)
+                userpassword = username
+                cookie = first_login_reqck(username, userpassword)
+                names_list = {i: names[i].decode( )}
+                gid = r_pool.hget('downloadreqdata', names_list[i]).decode( )
+                print(names_list[i])
+                print(gid)
+                flag1 = singeldownload(cookie = cookie, name = names_list[i], gid = gid)
+                i += 1
+                time.sleep(5)
+    except Exception as e:
+        print(e)
+        pass
 
 
 if __name__ == '__main__':
-    download_data()
+    download_data( )

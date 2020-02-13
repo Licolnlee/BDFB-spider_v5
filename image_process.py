@@ -10,8 +10,8 @@ class image_process( ):
         cv.destroyAllWindows( )
 
     def process(self):
-        bg = cv.imread('./error/error_sc0.png', 1)
-        front = cv.imread('./error/error_nc0.png', 1)
+        bg = cv.imread('./error/error_sc1.png', 1)
+        front = cv.imread('./error/error_nc1.png', 1)
         print(bg.shape)
         print(front.shape)
         for i in range(bg.shape[0]):
