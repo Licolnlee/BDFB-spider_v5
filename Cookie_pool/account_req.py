@@ -221,7 +221,8 @@ class account_req( ):
     def job(self):
         start = time.time( )
         u_list = CONN1.get_alval( )
-        with ThreadPoolExecutor(max_workers = 30) as executor:
+        u_num = CONN1.count()
+        with ThreadPoolExecutor(max_workers = u_num) as executor:
             executor.map(self.test_req, u_list)
         # all_task = [executor.submit(test_req, (url)) for url in u_list]
         # for future in as_completed(all_task):
@@ -234,7 +235,9 @@ class account_req( ):
         # t.start()
         # t.join()
         # test_req(url)
+        executor.shutdown( )
         print('cost time: {}'.format(time.time( ) - start))
+
         # req_random_url()
         # url = 'F:\BDFB-spider_v5\Cookie_pool\\test.html'
         # parse_js(url)
