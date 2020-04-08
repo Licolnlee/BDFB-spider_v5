@@ -11,7 +11,7 @@ from soupsieve.util import string
 
 from Cookie_pool.account_saver import RedisClient
 
-CONN = RedisClient('account', 'pkulaw')
+CONN = RedisClient('account', 'pkulaw_v5')
 NUM = 16
 
 pool = redis.ConnectionPool(host = 'localhost', port = 6379, db = 1, password = '')

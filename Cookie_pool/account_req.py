@@ -17,8 +17,8 @@ USERPASSWORD = 'Windows10'
 REQ_ID = '659'
 REQ_TITLE = '法律数据库'
 BASE_URL = 'http://520myfuture.com/db/goEntrance?'
-CONN = RedisClient('account', 'pkulaw')
-CONN1 = RedisClient('url_list', 'myfuture')
+CONN = RedisClient('account', 'pkulaw_v5')
+CONN1 = RedisClient('url_list', 'myfuture_v5')
 
 HEADERS = {
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
